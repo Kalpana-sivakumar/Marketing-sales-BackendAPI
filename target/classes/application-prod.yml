@@ -1,0 +1,11 @@
+spring:
+  jpa:
+    show-sql: false
+
+logging:
+  level:
+    root: WARN
+    com.marketingsales.backend: INFO
+
+# In production, DB_URL / DB_USERNAME / DB_PASSWORD / JWT_SECRET / CORS_ALLOWED_ORIGINS
+# must be supplied as real environment variables/secrets — never commit real values.

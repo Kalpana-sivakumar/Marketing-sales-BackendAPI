@@ -73,15 +73,59 @@ see `V2__seed_dev_admin_user.sql`: `admin@marketingsales.dev` / `Admin@12345`, *
 - Swagger UI: `http://localhost:8080/swagger-ui.html`
 - Health check: `GET /api/health`
 
-## Auth endpoints (public)
+## Auth endpoints
 
 | Method | Endpoint                    | Description                    |
 |--------|-------------------------------|---------------------------------|
-| POST   | `/api/auth/register`          | Create a new user               |
 | POST   | `/api/auth/login`              | Authenticate, get access+refresh tokens |
 | POST   | `/api/auth/refresh-token`      | Exchange a refresh token for a new access token |
 
 Everything else requires `Authorization: Bearer <accessToken>`.
+
+## User management endpoints (admin only)
+
+All user-management routes require an `ADMIN` access token. Passwords supplied to user-create
+or user-update requests are BCrypt-hashed before persistence and are never returned by the API.
+
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/api/users` | Create a user |
+| GET | `/api/users?search=&role=&region=&enabled=&page=&size=` | List users; search by name/email and filter by role, region, or active status |
+| GET | `/api/users/{id}` | Get a user |
+| PUT | `/api/users/{id}` | Edit profile details, password, region, or role |
+| PATCH | `/api/users/{id}/status` | Activate/deactivate with `{"enabled": true}` or `{"enabled": false}` |
+
+`POST /api/auth/register` remains available only to authenticated admins for backwards
+compatibility and also requires `region`.
+
+## Product management endpoints (admin only)
+
+SKU is unique and immutable after creation (edit requests do not accept SKU).
+
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/api/products` | Create product |
+| GET | `/api/products?search=&category=&uom=&active=&page=&size=` | List products, search by SKU/name, filter by category/UOM/status |
+| GET | `/api/products/{id}` | View product details |
+| PUT | `/api/products/{id}` | Edit product details (except SKU) |
+| PATCH | `/api/products/{id}/status` | Activate/deactivate with `{"active": true}` or `{"active": false}` |
+
+Example create payload:
+```json
+{
+  "sku": "GEN-CL-500",
+  "productName": "Gen1 Chain Lube",
+  "category": "Chain Care",
+  "packSize": 500,
+  "uom": "ML",
+  "basePrice": 650,
+  "mrp": 750,
+  "status": "ACTIVE"
+}
+```
+
+Product details response includes: category, pack size, UOM, base price, MRP, status, createdBy,
+createdAt, updatedBy, and updatedAt.
 
 Example login:
 ```bash
