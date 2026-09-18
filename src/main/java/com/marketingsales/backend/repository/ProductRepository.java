@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
+
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
     boolean existsBySkuIgnoreCase(String sku);
@@ -27,4 +29,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             @Param("status") ProductStatus status,
             Pageable pageable
     );
+
+    List<Product> findByStatusOrderByProductNameAsc(ProductStatus status);
 }
