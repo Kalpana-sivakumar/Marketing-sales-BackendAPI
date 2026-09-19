@@ -34,13 +34,14 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public AuthResponse register(RegisterRequest request) {
-        if (userRepository.existsByEmailIgnoreCase(request.getEmail())) {
+        String normalizedEmail = request.getEmail().trim().toLowerCase();
+        if (userRepository.existsByEmailIgnoreCase(normalizedEmail)) {
             throw new DuplicateResourceException("An account with this email already exists");
         }
 
         User user = User.builder()
                 .fullName(request.getFullName())
-                .email(request.getEmail().toLowerCase())
+                .email(normalizedEmail)
                 .password(passwordEncoder.encode(request.getPassword()))
                 .phone(request.getPhone())
                 .region(request.getRegion())
@@ -54,8 +55,9 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public AuthResponse login(LoginRequest request) {
+        String normalizedEmail = request.getEmail().trim().toLowerCase();
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+                new UsernamePasswordAuthenticationToken(normalizedEmail, request.getPassword())
         );
 
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();

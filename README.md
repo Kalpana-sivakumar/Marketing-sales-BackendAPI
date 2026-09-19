@@ -127,6 +127,29 @@ Example create payload:
 Product details response includes: category, pack size, UOM, base price, MRP, status, createdBy,
 createdAt, updatedBy, and updatedAt.
 
+## Mobile app product APIs (read-only for staff)
+
+Staff users can view products created from the dashboard but cannot edit product data.
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/api/mobile/products?search=&category=&uom=&page=&size=` | Active product list for mobile screens |
+| GET | `/api/mobile/products/dropdown?search=` | Lightweight product dropdown options (`id`, `sku`, `productName`, `displayLabel`, `basePrice`) |
+| GET | `/api/mobile/products/{id}` | Active product detail view |
+| POST | `/api/mobile/products/order-pricing` | Calculate order line totals and grand total from selected products + quantities |
+
+Order pricing request:
+```json
+{
+  "items": [
+    { "productId": 101, "quantity": 2 },
+    { "productId": 102, "quantity": 3 }
+  ]
+}
+```
+
+Order pricing response includes per-line unit price/line total and overall `totalPrice`.
+
 Example login:
 ```bash
 curl -X POST http://localhost:8080/api/auth/login \

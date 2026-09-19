@@ -1,6 +1,9 @@
 package com.marketingsales.backend.service.impl;
 
 import com.marketingsales.backend.constant.ProductStatus;
+import com.marketingsales.backend.dto.request.CounterOrderPricingRequest;
+import com.marketingsales.backend.dto.response.CounterOrderPricingResponse;
+import com.marketingsales.backend.dto.response.MobileProductOptionResponse;
 import com.marketingsales.backend.dto.request.CreateProductRequest;
 import com.marketingsales.backend.dto.request.UpdateProductRequest;
 import com.marketingsales.backend.dto.response.ProductPageResponse;
@@ -20,6 +23,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -58,9 +67,9 @@ public class ProductServiceImpl implements ProductService {
     public ProductPageResponse findAll(String search, String category, String uom, Boolean active, int page, int size) {
         ProductStatus status = active == null ? null : (active ? ProductStatus.ACTIVE : ProductStatus.INACTIVE);
         Page<Product> products = productRepository.searchProducts(
-                normalize(search),
-                normalize(category),
-                normalize(uom),
+                buildLikePattern(search),
+                normalizeToLower(category),
+                normalizeToLower(uom),
                 status,
                 PageRequest.of(page, size, Sort.by("productName").ascending())
         );
@@ -109,6 +118,57 @@ public class ProductServiceImpl implements ProductService {
         return ProductResponse.from(productRepository.saveAndFlush(product));
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<MobileProductOptionResponse> findActiveProductOptions(String search) {
+        String normalized = normalize(search);
+        return productRepository.findByStatusOrderByProductNameAsc(ProductStatus.ACTIVE).stream()
+                .filter(product -> normalized == null
+                        || product.getSku().toLowerCase().contains(normalized.toLowerCase())
+                        || product.getProductName().toLowerCase().contains(normalized.toLowerCase()))
+                .map(MobileProductOptionResponse::from)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public CounterOrderPricingResponse calculateCounterOrderPricing(CounterOrderPricingRequest request) {
+        Map<Long, Integer> quantitiesByProduct = mergeByProduct(request.getItems());
+        List<Long> productIds = new ArrayList<>(quantitiesByProduct.keySet());
+        List<Product> products = productRepository.findAllById(productIds);
+
+        Map<Long, Product> productMap = products.stream()
+                .collect(Collectors.toMap(Product::getId, Function.identity()));
+        if (productMap.size() != quantitiesByProduct.size()) {
+            throw new BadRequestException("One or more selected products do not exist");
+        }
+
+        List<CounterOrderPricingResponse.PricedItem> pricedItems = new ArrayList<>();
+        BigDecimal total = BigDecimal.ZERO;
+        for (Map.Entry<Long, Integer> entry : quantitiesByProduct.entrySet()) {
+            Product product = productMap.get(entry.getKey());
+            if (product.getStatus() != ProductStatus.ACTIVE) {
+                throw new BadRequestException("Inactive products cannot be added to orders");
+            }
+            BigDecimal lineTotal = product.getBasePrice().multiply(BigDecimal.valueOf(entry.getValue()));
+            total = total.add(lineTotal);
+
+            pricedItems.add(CounterOrderPricingResponse.PricedItem.builder()
+                    .productId(product.getId())
+                    .sku(product.getSku())
+                    .productName(product.getProductName())
+                    .quantity(entry.getValue())
+                    .unitPrice(product.getBasePrice())
+                    .lineTotal(lineTotal)
+                    .build());
+        }
+
+        return CounterOrderPricingResponse.builder()
+                .items(pricedItems)
+                .totalPrice(total)
+                .build();
+    }
+
     private Product getProduct(Long id) {
         return productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
@@ -128,5 +188,25 @@ public class ProductServiceImpl implements ProductService {
 
     private String normalize(String value) {
         return StringUtils.hasText(value) ? value.trim() : null;
+    }
+
+    private String normalizeToLower(String value) {
+        return StringUtils.hasText(value) ? value.trim().toLowerCase() : null;
+    }
+
+    private String buildLikePattern(String value) {
+        String normalized = normalizeToLower(value);
+        return normalized == null ? "" : "%" + normalized + "%";
+    }
+
+    private Map<Long, Integer> mergeByProduct(List<CounterOrderPricingRequest.LineItem> items) {
+        Map<Long, Integer> quantities = new LinkedHashMap<>();
+        for (CounterOrderPricingRequest.LineItem item : items) {
+            if (item.getQuantity() == null || item.getQuantity() < 1) {
+                throw new BadRequestException("Quantity must be at least 1");
+            }
+            quantities.merge(item.getProductId(), item.getQuantity(), Integer::sum);
+        }
+        return quantities;
     }
 }
