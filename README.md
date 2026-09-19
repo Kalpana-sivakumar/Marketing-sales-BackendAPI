@@ -163,15 +163,17 @@ These endpoints support the mobile check-in/check-out actions and the admin/mana
 
 | Method | Endpoint                    | Role                         | Description |
 |--------|-----------------------------|------------------------------|-------------|
-| POST   | `/api/attendance/check-in`  | `STAFF`                      | Records check-in date/time and GPS location |
-| POST   | `/api/attendance/check-out` | `STAFF`                      | Records check-out date/time and GPS location |
-| GET    | `/api/attendance/staff`     | `ADMIN`, `MARKETING_MANAGER` | Returns employee name, contact number, check-in/out date-time, and check-in/out GPS coordinates |
+| POST   | `/api/attendance/check-in`  | `STAFF`                      | Records check-in date/time and place name |
+| POST   | `/api/attendance/check-out` | `STAFF`                      | Records check-out date/time and place name |
+| GET    | `/api/attendance/staff`     | `ADMIN`, `MARKETING_MANAGER` | Returns employee name, contact number, check-in/out date-time, and check-in/out place names |
+
+The mobile app resolves the GPS position to a human-readable place name
+(using the device's geocoder) and sends it with the check-in/check-out tap.
 
 Example check-in/check-out payload:
 ```json
 {
-  "latitude": 13.0827,
-  "longitude": 80.2707
+  "placeName": "Anna Nagar, Chennai, Tamil Nadu 600040"
 }
 ```
 

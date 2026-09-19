@@ -41,18 +41,12 @@ public class StaffAttendance {
     @Column(name = "check_in_at", nullable = false, updatable = false)
     private Instant checkInAt;
 
-    @Column(name = "check_in_latitude", nullable = false)
-    private Double checkInLatitude;
-
-    @Column(name = "check_in_longitude", nullable = false)
-    private Double checkInLongitude;
+    @Column(name = "check_in_place", nullable = false)
+    private String checkInPlace;
 
     @Column(name = "check_out_at")
     private Instant checkOutAt;
 
-    @Column(name = "check_out_latitude")
-    private Double checkOutLatitude;
-
-    @Column(name = "check_out_longitude")
-    private Double checkOutLongitude;
+    @Column(name = "check_out_place")
+    private String checkOutPlace;
 }

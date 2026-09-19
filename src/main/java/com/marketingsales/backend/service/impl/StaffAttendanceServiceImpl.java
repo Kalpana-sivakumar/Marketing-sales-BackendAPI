@@ -37,8 +37,7 @@ public class StaffAttendanceServiceImpl implements StaffAttendanceService {
 
         StaffAttendance attendance = StaffAttendance.builder()
                 .user(user)
-                .checkInLatitude(request.getLatitude())
-                .checkInLongitude(request.getLongitude())
+                .checkInPlace(request.getPlaceName())
                 .build();
 
         StaffAttendance saved = staffAttendanceRepository.save(attendance);
@@ -53,8 +52,7 @@ public class StaffAttendanceServiceImpl implements StaffAttendanceService {
                 .orElseThrow(() -> new BadRequestException("No active check-in found to check out"));
 
         activeAttendance.setCheckOutAt(Instant.now());
-        activeAttendance.setCheckOutLatitude(request.getLatitude());
-        activeAttendance.setCheckOutLongitude(request.getLongitude());
+        activeAttendance.setCheckOutPlace(request.getPlaceName());
 
         StaffAttendance saved = staffAttendanceRepository.save(activeAttendance);
         return toResponse(saved);
@@ -76,11 +74,9 @@ public class StaffAttendanceServiceImpl implements StaffAttendanceService {
                 .employeeName(attendance.getUser().getFullName())
                 .contactNumber(attendance.getUser().getPhone())
                 .checkInDateTime(attendance.getCheckInAt())
-                .checkInLatitude(attendance.getCheckInLatitude())
-                .checkInLongitude(attendance.getCheckInLongitude())
+                .checkInPlace(attendance.getCheckInPlace())
                 .checkOutDateTime(attendance.getCheckOutAt())
-                .checkOutLatitude(attendance.getCheckOutLatitude())
-                .checkOutLongitude(attendance.getCheckOutLongitude())
+                .checkOutPlace(attendance.getCheckOutPlace())
                 .build();
     }
 }

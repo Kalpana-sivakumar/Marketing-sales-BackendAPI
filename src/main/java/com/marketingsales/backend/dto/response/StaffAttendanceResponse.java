@@ -15,9 +15,7 @@ public class StaffAttendanceResponse {
     private String employeeName;
     private String contactNumber;
     private Instant checkInDateTime;
-    private Double checkInLatitude;
-    private Double checkInLongitude;
+    private String checkInPlace;
     private Instant checkOutDateTime;
-    private Double checkOutLatitude;
-    private Double checkOutLongitude;
+    private String checkOutPlace;
 }
