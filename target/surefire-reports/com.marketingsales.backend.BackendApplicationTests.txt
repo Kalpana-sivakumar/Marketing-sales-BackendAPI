@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.marketingsales.backend.BackendApplicationTests
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 11.37 s -- in com.marketingsales.backend.BackendApplicationTests
