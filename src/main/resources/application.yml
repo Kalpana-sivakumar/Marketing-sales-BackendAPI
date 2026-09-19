@@ -44,8 +44,7 @@ app:
     access-token-expiration-ms: ${JWT_ACCESS_EXP_MS:900000}      # 15 minutes
     refresh-token-expiration-ms: ${JWT_REFRESH_EXP_MS:604800000} # 7 days
   cors:
-    # Origin patterns (not exact origins) so dev servers on any localhost port are accepted
-    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:*,http://127.0.0.1:*}
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5174,http://localhost:5175,http://127.0.0.1:5174,http://127.0.0.1:5175}
 
 springdoc:
   swagger-ui:

@@ -18,11 +18,14 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.util.StringUtils;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
+import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 /**
  * Stateless, JWT-based security configuration shared by both the dashboard
@@ -90,9 +93,20 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // Origin patterns allow localhost on any port (dashboard dev servers pick dynamic ports)
-        // while still working alongside allowCredentials(true), which forbids plain "*".
-        configuration.setAllowedOriginPatterns(allowedOrigins);
+        List<String> normalizedOrigins = allowedOrigins.stream()
+                .flatMap(origin -> List.of(origin.split(",")).stream())
+                .map(String::trim)
+                .filter(StringUtils::hasText)
+                .collect(Collectors.toCollection(ArrayList::new));
+
+        if (!normalizedOrigins.contains("http://localhost:*")) {
+            normalizedOrigins.add("http://localhost:*");
+        }
+        if (!normalizedOrigins.contains("http://127.0.0.1:*")) {
+            normalizedOrigins.add("http://127.0.0.1:*");
+        }
+
+        configuration.setAllowedOriginPatterns(normalizedOrigins);
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
