@@ -51,7 +51,7 @@ public class UserManagementServiceImpl implements UserManagementService {
     @Transactional(readOnly = true)
     public UserPageResponse findAll(String search, Role role, String region, Boolean enabled, int page, int size) {
         Page<User> users = userRepository.searchUsers(
-                normalize(search), role, normalize(region), enabled,
+                buildLikePattern(search), role, normalizeToLower(region), enabled,
                 PageRequest.of(page, size, Sort.by("fullName").ascending())
         );
         return UserPageResponse.builder()
@@ -103,5 +103,14 @@ public class UserManagementServiceImpl implements UserManagementService {
 
     private String normalize(String value) {
         return StringUtils.hasText(value) ? value.trim() : null;
+    }
+
+    private String normalizeToLower(String value) {
+        return StringUtils.hasText(value) ? value.trim().toLowerCase() : null;
+    }
+
+    private String buildLikePattern(String value) {
+        String normalized = normalizeToLower(value);
+        return normalized == null ? "" : "%" + normalized + "%";
     }
 }

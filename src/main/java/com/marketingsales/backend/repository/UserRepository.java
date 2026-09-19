@@ -21,14 +21,15 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     @Query("""
             SELECT u FROM User u
-            WHERE (:search IS NULL OR LOWER(u.fullName) LIKE LOWER(CONCAT('%', :search, '%'))
-                   OR LOWER(u.email) LIKE LOWER(CONCAT('%', :search, '%')))
+            WHERE (:searchPattern = ''
+                   OR LOWER(u.fullName) LIKE :searchPattern
+                   OR LOWER(u.email) LIKE :searchPattern)
               AND (:role IS NULL OR u.role = :role)
-              AND (:region IS NULL OR LOWER(u.region) = LOWER(:region))
+              AND (:region IS NULL OR LOWER(u.region) = :region)
               AND (:enabled IS NULL OR u.enabled = :enabled)
             """)
     Page<User> searchUsers(
-            @Param("search") String search,
+            @Param("searchPattern") String searchPattern,
             @Param("role") Role role,
             @Param("region") String region,
             @Param("enabled") Boolean enabled,

@@ -67,9 +67,9 @@ public class ProductServiceImpl implements ProductService {
     public ProductPageResponse findAll(String search, String category, String uom, Boolean active, int page, int size) {
         ProductStatus status = active == null ? null : (active ? ProductStatus.ACTIVE : ProductStatus.INACTIVE);
         Page<Product> products = productRepository.searchProducts(
-                normalize(search),
-                normalize(category),
-                normalize(uom),
+                buildLikePattern(search),
+                normalizeToLower(category),
+                normalizeToLower(uom),
                 status,
                 PageRequest.of(page, size, Sort.by("productName").ascending())
         );
@@ -188,6 +188,15 @@ public class ProductServiceImpl implements ProductService {
 
     private String normalize(String value) {
         return StringUtils.hasText(value) ? value.trim() : null;
+    }
+
+    private String normalizeToLower(String value) {
+        return StringUtils.hasText(value) ? value.trim().toLowerCase() : null;
+    }
+
+    private String buildLikePattern(String value) {
+        String normalized = normalizeToLower(value);
+        return normalized == null ? "" : "%" + normalized + "%";
     }
 
     private Map<Long, Integer> mergeByProduct(List<CounterOrderPricingRequest.LineItem> items) {
