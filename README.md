@@ -157,6 +157,26 @@ curl -X POST http://localhost:8080/api/auth/login \
   -d '{"email":"admin@marketingsales.dev","password":"Admin@12345"}'
 ```
 
+## Staff attendance endpoints
+
+These endpoints support the mobile check-in/check-out actions and the admin/manager dashboard staff attendance page.
+
+| Method | Endpoint                    | Role                         | Description |
+|--------|-----------------------------|------------------------------|-------------|
+| POST   | `/api/attendance/check-in`  | `STAFF`                      | Records check-in date/time and place name |
+| POST   | `/api/attendance/check-out` | `STAFF`                      | Records check-out date/time and place name |
+| GET    | `/api/attendance/staff`     | `ADMIN`, `MARKETING_MANAGER` | Returns employee name, contact number, check-in/out date-time, and check-in/out place names |
+
+The mobile app resolves the GPS position to a human-readable place name
+(using the device's geocoder) and sends it with the check-in/check-out tap.
+
+Example check-in/check-out payload:
+```json
+{
+  "placeName": "Anna Nagar, Chennai, Tamil Nadu 600040"
+}
+```
+
 ## Extending this skeleton
 
 - **New feature module** (e.g. campaigns): add `entity/Campaign.java`, `repository/CampaignRepository.java`,
