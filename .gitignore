@@ -2,3 +2,11 @@
 .env
 .env.*
 !.env.example
+
+# Eclipse IDE metadata
+.classpath
+.factorypath
+.project
+
+# Build output
+target/
