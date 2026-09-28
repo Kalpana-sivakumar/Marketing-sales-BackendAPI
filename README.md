@@ -165,10 +165,17 @@ These endpoints support the mobile check-in/check-out actions and the admin/mana
 |--------|-----------------------------|------------------------------|-------------|
 | POST   | `/api/attendance/check-in`  | `STAFF`                      | Records check-in date/time and place name |
 | POST   | `/api/attendance/check-out` | `STAFF`                      | Records check-out date/time and place name |
-| GET    | `/api/attendance/staff`     | `ADMIN`, `MARKETING_MANAGER` | Returns employee name, contact number, check-in/out date-time, and check-in/out place names |
+| GET    | `/api/attendance/staff`     | `STAFF`, `ADMIN`, `MARKETING_MANAGER` | `STAFF` receives only their own history; admins/managers receive full dashboard list |
+| GET    | `/api/attendance/me`        | `STAFF`                      | Returns the active attendance record (`employeeId`, `checkInDateTime`, `checkOutDateTime`) |
+| POST   | `/api/attendance/route-point` | `STAFF`                    | Appends one GPS route point (lat/lng/time/place) to the authenticated user's active session |
+| GET    | `/api/attendance/me/route`  | `STAFF`                      | Returns persisted route points for the authenticated user's active session |
 
 The mobile app resolves the GPS position to a human-readable place name
 (using the device's geocoder) and sends it with the check-in/check-out tap.
+
+For route persistence across app restarts, the mobile app can periodically call
+`POST /api/attendance/route-point` while checked in; the backend stores points
+under the current active attendance session.
 
 Example check-in/check-out payload:
 ```json
