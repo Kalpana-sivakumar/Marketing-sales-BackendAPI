@@ -1,7 +1,10 @@
 package com.marketingsales.backend.controller;
 
 import com.marketingsales.backend.dto.request.AttendanceActionRequest;
+import com.marketingsales.backend.dto.request.AttendanceRoutePointRequest;
+import com.marketingsales.backend.dto.response.ActiveAttendanceResponse;
 import com.marketingsales.backend.dto.response.ApiResponse;
+import com.marketingsales.backend.dto.response.AttendanceRoutePointResponse;
 import com.marketingsales.backend.dto.response.StaffAttendanceResponse;
 import com.marketingsales.backend.security.UserPrincipal;
 import com.marketingsales.backend.service.StaffAttendanceService;
@@ -17,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/attendance")
@@ -47,9 +51,52 @@ public class StaffAttendanceController {
     }
 
     @GetMapping("/staff")
-    @PreAuthorize("hasAnyRole('ADMIN','MARKETING_MANAGER')")
-    public ApiResponse<List<StaffAttendanceResponse>> getStaffAttendanceForDashboard() {
-        List<StaffAttendanceResponse> attendance = staffAttendanceService.getStaffAttendanceForDashboard();
+    @PreAuthorize("hasAnyRole('STAFF','ADMIN','MARKETING_MANAGER')")
+    public ApiResponse<List<StaffAttendanceResponse>> getStaffAttendance(
+            @AuthenticationPrincipal UserPrincipal principal
+    ) {
+        List<StaffAttendanceResponse> attendance = "STAFF".equals(principal.getRole())
+                ? staffAttendanceService.getStaffAttendanceForUser(principal.getId())
+                : staffAttendanceService.getStaffAttendanceForDashboard();
         return ApiResponse.success(attendance);
+    }
+
+    @GetMapping("/me")
+    @PreAuthorize("hasRole('STAFF')")
+    public ApiResponse<ActiveAttendanceResponse> getMyActiveAttendance(
+            @AuthenticationPrincipal UserPrincipal principal
+    ) {
+        Optional<StaffAttendanceResponse> active = staffAttendanceService.getActiveAttendanceForUser(principal.getId());
+        if (active.isEmpty()) {
+            return ApiResponse.success("No active attendance record", null);
+        }
+
+        StaffAttendanceResponse data = active.get();
+        ActiveAttendanceResponse response = ActiveAttendanceResponse.builder()
+                .attendanceId(data.getAttendanceId())
+                .employeeId(data.getEmployeeId())
+                .checkInDateTime(data.getCheckInDateTime())
+                .checkOutDateTime(data.getCheckOutDateTime())
+                .build();
+        return ApiResponse.success(response);
+    }
+
+    @PostMapping("/route-point")
+    @PreAuthorize("hasRole('STAFF')")
+    public ApiResponse<AttendanceRoutePointResponse> addRoutePoint(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @Valid @RequestBody AttendanceRoutePointRequest request
+    ) {
+        AttendanceRoutePointResponse response = staffAttendanceService.addRoutePoint(principal.getId(), request);
+        return ApiResponse.success("Route point recorded successfully", response);
+    }
+
+    @GetMapping("/me/route")
+    @PreAuthorize("hasRole('STAFF')")
+    public ApiResponse<List<AttendanceRoutePointResponse>> getMyActiveRoute(
+            @AuthenticationPrincipal UserPrincipal principal
+    ) {
+        List<AttendanceRoutePointResponse> points = staffAttendanceService.getActiveRoutePoints(principal.getId());
+        return ApiResponse.success(points);
     }
 }
