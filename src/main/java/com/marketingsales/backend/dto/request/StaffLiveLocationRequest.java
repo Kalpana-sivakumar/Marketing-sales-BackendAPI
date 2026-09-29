@@ -1,8 +1,8 @@
 package com.marketingsales.backend.dto.request;
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -10,7 +10,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class AttendanceActionRequest {
+public class StaffLiveLocationRequest {
 
     @NotNull(message = "Latitude is required")
     @DecimalMin(value = "-90.0", message = "Latitude must be >= -90")
@@ -22,9 +22,7 @@ public class AttendanceActionRequest {
     @DecimalMax(value = "180.0", message = "Longitude must be <= 180")
     private Double longitude;
 
-    // Resolved on the mobile device from GPS (e.g. via the platform geocoder)
-    // and sent with the check-in/check-out tap.
-    @NotBlank(message = "Place name is required")
+    @NotBlank(message = "Location name is required")
     @Size(max = 255)
-    private String placeName;
+    private String locationName;
 }
