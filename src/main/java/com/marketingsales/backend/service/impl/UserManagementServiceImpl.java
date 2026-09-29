@@ -6,6 +6,7 @@ import com.marketingsales.backend.dto.request.UpdateUserRequest;
 import com.marketingsales.backend.dto.response.UserPageResponse;
 import com.marketingsales.backend.dto.response.UserResponse;
 import com.marketingsales.backend.entity.User;
+import com.marketingsales.backend.exception.BadRequestException;
 import com.marketingsales.backend.exception.DuplicateResourceException;
 import com.marketingsales.backend.exception.ResourceNotFoundException;
 import com.marketingsales.backend.repository.UserRepository;
@@ -14,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -94,6 +96,18 @@ public class UserManagementServiceImpl implements UserManagementService {
         User user = getUser(id);
         user.setEnabled(enabled);
         return UserResponse.from(userRepository.saveAndFlush(user));
+    }
+
+    @Override
+    @Transactional
+    public void delete(UUID id) {
+        User user = getUser(id);
+        try {
+            userRepository.delete(user);
+            userRepository.flush();
+        } catch (DataIntegrityViolationException ex) {
+            throw new BadRequestException("User cannot be deleted because it is referenced by other records");
+        }
     }
 
     private User getUser(UUID id) {

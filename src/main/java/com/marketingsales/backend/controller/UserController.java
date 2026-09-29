@@ -23,6 +23,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -95,5 +96,24 @@ public class UserController {
     ) {
         String message = request.getEnabled() ? "User activated successfully" : "User deactivated successfully";
         return ApiResponse.success(message, userManagementService.updateStatus(id, request.getEnabled()));
+    }
+
+    @PatchMapping("/{id}/soft-delete")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ApiResponse<UserResponse> softDelete(@PathVariable UUID id) {
+        return ApiResponse.success("User deactivated successfully", userManagementService.updateStatus(id, false));
+    }
+
+    @PatchMapping("/{id}/restore")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ApiResponse<UserResponse> restore(@PathVariable UUID id) {
+        return ApiResponse.success("User activated successfully", userManagementService.updateStatus(id, true));
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ApiResponse<Void> delete(@PathVariable UUID id) {
+        userManagementService.delete(id);
+        return ApiResponse.success("User deleted successfully", null);
     }
 }
