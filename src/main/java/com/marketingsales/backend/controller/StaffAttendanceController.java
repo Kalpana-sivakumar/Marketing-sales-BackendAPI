@@ -23,9 +23,9 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/attendance")
+@RequestMapping("/api/staff/attendance")
 @RequiredArgsConstructor
-@Tag(name = "Staff Attendance", description = "Check-in/check-out from staff mobile app and attendance list for dashboard")
+@Tag(name = "Staff Attendance", description = "Staff attendance and route endpoints for the mobile app")
 public class StaffAttendanceController {
 
     private final StaffAttendanceService staffAttendanceService;
@@ -40,25 +40,12 @@ public class StaffAttendanceController {
         return ApiResponse.success("Check-in recorded successfully", response);
     }
 
-    @PostMapping("/check-out")
+    @GetMapping("/history")
     @PreAuthorize("hasRole('STAFF')")
-    public ApiResponse<StaffAttendanceResponse> checkOut(
-            @AuthenticationPrincipal UserPrincipal principal,
-            @Valid @RequestBody AttendanceActionRequest request
-    ) {
-        StaffAttendanceResponse response = staffAttendanceService.checkOut(principal.getId(), request);
-        return ApiResponse.success("Check-out recorded successfully", response);
-    }
-
-    @GetMapping("/staff")
-    @PreAuthorize("hasAnyRole('STAFF','ADMIN','MARKETING_MANAGER')")
-    public ApiResponse<List<StaffAttendanceResponse>> getStaffAttendance(
+    public ApiResponse<List<StaffAttendanceResponse>> getMyAttendanceHistory(
             @AuthenticationPrincipal UserPrincipal principal
     ) {
-        List<StaffAttendanceResponse> attendance = "STAFF".equals(principal.getRole())
-                ? staffAttendanceService.getStaffAttendanceForUser(principal.getId())
-                : staffAttendanceService.getStaffAttendanceForDashboard();
-        return ApiResponse.success(attendance);
+        return ApiResponse.success(staffAttendanceService.getStaffAttendanceForUser(principal.getId()));
     }
 
     @GetMapping("/me")
