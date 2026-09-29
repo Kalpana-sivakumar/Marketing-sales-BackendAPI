@@ -1,0 +1,81 @@
+package com.marketingsales.backend.entity;
+
+import com.marketingsales.backend.constant.CustomerStatus;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.UUID;
+
+@Entity
+@Table(name = "customer_counters", uniqueConstraints = {
+        @UniqueConstraint(name = "uk_customer_counters_code", columnNames = "code")
+})
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class CustomerCounter {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(updatable = false, nullable = false)
+    private UUID id;
+
+    @Column(nullable = false, length = 50)
+    private String code;
+
+    @Column(nullable = false, length = 180)
+    private String name;
+
+    @Column(name = "contact_person", nullable = false, length = 150)
+    private String contactPerson;
+
+    @Column(nullable = false, length = 20)
+    private String mobile;
+
+    @Column(name = "distributor_id", nullable = false)
+    private UUID distributorId;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "distributor_id", nullable = false, insertable = false, updatable = false)
+    private Distributor distributor;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private CustomerStatus status;
+
+    @Builder.Default
+    @Column(name = "outstanding_amount", nullable = false, precision = 12, scale = 2)
+    private BigDecimal outstandingAmount = BigDecimal.ZERO;
+
+    @Column(name = "last_order_at")
+    private Instant lastOrderAt;
+
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private Instant createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at", nullable = false)
+    private Instant updatedAt;
+}

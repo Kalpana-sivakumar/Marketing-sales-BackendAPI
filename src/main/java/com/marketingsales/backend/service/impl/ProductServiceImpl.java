@@ -119,6 +119,13 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional
+    public void delete(Long id) {
+        Product product = getProduct(id);
+        productRepository.delete(product);
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public List<MobileProductOptionResponse> findActiveProductOptions(String search) {
         String normalized = normalize(search);

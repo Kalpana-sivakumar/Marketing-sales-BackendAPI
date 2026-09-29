@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -80,6 +81,34 @@ public class ProductController {
     ) {
         String message = request.getActive() ? "Product activated successfully" : "Product deactivated successfully";
         return ApiResponse.success(message, productService.updateStatus(id, request.getActive(), actorName(principal)));
+    }
+
+    @PatchMapping("/{id}/soft-delete")
+    public ApiResponse<ProductResponse> softDelete(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserPrincipal principal
+    ) {
+        return ApiResponse.success(
+                "Product deactivated successfully",
+                productService.updateStatus(id, false, actorName(principal))
+        );
+    }
+
+    @PatchMapping("/{id}/restore")
+    public ApiResponse<ProductResponse> restore(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserPrincipal principal
+    ) {
+        return ApiResponse.success(
+                "Product activated successfully",
+                productService.updateStatus(id, true, actorName(principal))
+        );
+    }
+
+    @DeleteMapping("/{id}")
+    public ApiResponse<Void> delete(@PathVariable Long id) {
+        productService.delete(id);
+        return ApiResponse.success("Product deleted successfully", null);
     }
 
     private String actorName(UserPrincipal principal) {

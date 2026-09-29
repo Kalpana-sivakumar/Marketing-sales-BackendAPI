@@ -14,4 +14,5 @@ public interface UserManagementService {
     UserResponse findById(UUID id);
     UserResponse update(UUID id, UpdateUserRequest request);
     UserResponse updateStatus(UUID id, boolean enabled);
+    void delete(UUID id);
 }

@@ -16,6 +16,7 @@ public interface ProductService {
     ProductResponse findById(Long id);
     ProductResponse update(Long id, UpdateProductRequest request, String actorName);
     ProductResponse updateStatus(Long id, boolean active, String actorName);
+    void delete(Long id);
     List<MobileProductOptionResponse> findActiveProductOptions(String search);
     CounterOrderPricingResponse calculateCounterOrderPricing(CounterOrderPricingRequest request);
 }
