@@ -60,6 +60,13 @@ public class CustomerCounter {
     @JoinColumn(name = "distributor_id", nullable = false, insertable = false, updatable = false)
     private Distributor distributor;
 
+    @Column(name = "master_route_id")
+    private UUID masterRouteId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "master_route_id", insertable = false, updatable = false)
+    private Route masterRoute;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private CustomerStatus status;

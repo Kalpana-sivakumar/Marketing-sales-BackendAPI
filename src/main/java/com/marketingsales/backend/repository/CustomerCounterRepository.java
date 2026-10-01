@@ -32,4 +32,20 @@ public interface CustomerCounterRepository extends JpaRepository<CustomerCounter
             @Param("distributorId") UUID distributorId,
             Sort sort
     );
+
+    List<CustomerCounter> findAllByMasterRouteIdAndStatusOrderByNameAsc(UUID masterRouteId, CustomerStatus status);
+
+    @Query("""
+            SELECT c FROM CustomerCounter c
+            WHERE c.status = :status
+              AND (:searchPattern = ''
+                    OR LOWER(c.name) LIKE :searchPattern
+                    OR LOWER(c.code) LIKE :searchPattern
+                    OR LOWER(c.mobile) LIKE :searchPattern)
+            ORDER BY c.name ASC
+            """)
+    List<CustomerCounter> searchActiveCustomerCounters(
+            @Param("status") CustomerStatus status,
+            @Param("searchPattern") String searchPattern
+    );
 }

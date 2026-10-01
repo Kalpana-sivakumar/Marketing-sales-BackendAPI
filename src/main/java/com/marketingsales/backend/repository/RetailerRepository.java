@@ -29,4 +29,20 @@ public interface RetailerRepository extends JpaRepository<Retailer, UUID> {
             @Param("status") CustomerStatus status,
             Sort sort
     );
+
+    List<Retailer> findAllByMasterRouteIdAndStatusOrderByNameAsc(UUID masterRouteId, CustomerStatus status);
+
+    @Query("""
+            SELECT r FROM Retailer r
+            WHERE r.status = :status
+              AND (:searchPattern = ''
+                    OR LOWER(r.name) LIKE :searchPattern
+                    OR LOWER(r.code) LIKE :searchPattern
+                    OR LOWER(r.mobile) LIKE :searchPattern)
+            ORDER BY r.name ASC
+            """)
+    List<Retailer> searchActiveRetailers(
+            @Param("status") CustomerStatus status,
+            @Param("searchPattern") String searchPattern
+    );
 }
