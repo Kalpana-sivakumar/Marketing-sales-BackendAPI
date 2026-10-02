@@ -5,10 +5,12 @@ import com.marketingsales.backend.constant.Role;
 import com.marketingsales.backend.constant.RouteCounterType;
 import com.marketingsales.backend.dto.request.BulkCounterCoordinateItemRequest;
 import com.marketingsales.backend.dto.request.BulkCounterCoordinateUpdateRequest;
+import com.marketingsales.backend.dto.request.CounterCoordinateUpdateRequest;
 import com.marketingsales.backend.dto.request.UpsertCustomerCounterRequest;
 import com.marketingsales.backend.dto.request.UpsertDistributorRequest;
 import com.marketingsales.backend.dto.request.UpsertRetailerRequest;
 import com.marketingsales.backend.dto.response.BulkCounterCoordinateUpdateResponse;
+import com.marketingsales.backend.dto.response.CounterLocationPickerResponse;
 import com.marketingsales.backend.dto.response.CustomerCounterRowResponse;
 import com.marketingsales.backend.dto.response.DistributorRowResponse;
 import com.marketingsales.backend.dto.response.RetailerRowResponse;
@@ -31,6 +33,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -386,6 +390,51 @@ public class CustomerNetworkServiceImpl implements CustomerNetworkService {
                 .build();
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public CounterLocationPickerResponse getCounterLocationPicker(RouteCounterType counterType, UUID counterId) {
+        return toLocationPickerResponse(resolveCounterLocation(counterType, counterId));
+    }
+
+    @Override
+    @Transactional
+    public CounterLocationPickerResponse updateCoordinate(CounterCoordinateUpdateRequest request) {
+        if (request.getCounterType() == RouteCounterType.DISTRIBUTOR) {
+            Distributor distributor = distributorRepository.findById(request.getCounterId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Distributor not found"));
+            distributor.setAddress(trimToNull(request.getAddress()));
+            distributor.setPinnedLocationName(normalizeLocationName(request.getLocationName()));
+            distributor.setLatitude(normalizeLatitude(request.getLatitude()));
+            distributor.setLongitude(normalizeLongitude(request.getLongitude()));
+            distributorRepository.saveAndFlush(distributor);
+            return toLocationPickerResponse(resolveCounterLocation(distributor));
+        }
+
+        if (request.getCounterType() == RouteCounterType.CUSTOMER) {
+            CustomerCounter counter = customerCounterRepository.findById(request.getCounterId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Customer counter not found"));
+            counter.setAddress(trimToNull(request.getAddress()));
+            counter.setPinnedLocationName(normalizeLocationName(request.getLocationName()));
+            counter.setLatitude(normalizeLatitude(request.getLatitude()));
+            counter.setLongitude(normalizeLongitude(request.getLongitude()));
+            customerCounterRepository.saveAndFlush(counter);
+            return toLocationPickerResponse(resolveCounterLocation(counter));
+        }
+
+        if (request.getCounterType() != RouteCounterType.RETAILER) {
+            throw new BadRequestException("Unsupported counter type");
+        }
+
+        Retailer retailer = retailerRepository.findById(request.getCounterId())
+                .orElseThrow(() -> new ResourceNotFoundException("Retailer not found"));
+        retailer.setAddress(trimToNull(request.getAddress()));
+        retailer.setPinnedLocationName(normalizeLocationName(request.getLocationName()));
+        retailer.setLatitude(normalizeLatitude(request.getLatitude()));
+        retailer.setLongitude(normalizeLongitude(request.getLongitude()));
+        retailerRepository.saveAndFlush(retailer);
+        return toLocationPickerResponse(resolveCounterLocation(retailer));
+    }
+
     private Distributor getDistributor(UUID id) {
         return distributorRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Distributor not found"));
@@ -426,6 +475,114 @@ public class CustomerNetworkServiceImpl implements CustomerNetworkService {
         return StringUtils.hasText(value) ? value.trim() : null;
     }
 
+    private CounterLocation resolveCounterLocation(RouteCounterType counterType, UUID counterId) {
+        if (counterType == RouteCounterType.DISTRIBUTOR) {
+            Distributor distributor = distributorRepository.findById(counterId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Distributor not found"));
+            return resolveCounterLocation(distributor);
+        }
+
+        if (counterType == RouteCounterType.CUSTOMER) {
+            CustomerCounter counter = customerCounterRepository.findById(counterId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Customer counter not found"));
+            return resolveCounterLocation(counter);
+        }
+
+        if (counterType != RouteCounterType.RETAILER) {
+            throw new BadRequestException("Unsupported counter type");
+        }
+
+        Retailer retailer = retailerRepository.findById(counterId)
+                .orElseThrow(() -> new ResourceNotFoundException("Retailer not found"));
+        return resolveCounterLocation(retailer);
+    }
+
+    private CounterLocation resolveCounterLocation(Distributor distributor) {
+        return new CounterLocation(
+                RouteCounterType.DISTRIBUTOR,
+                distributor.getId(),
+                distributor.getName(),
+                distributor.getPinnedLocationName(),
+                distributor.getAddress(),
+                distributor.getLatitude(),
+                distributor.getLongitude()
+        );
+    }
+
+    private CounterLocation resolveCounterLocation(CustomerCounter counter) {
+        return new CounterLocation(
+                RouteCounterType.CUSTOMER,
+                counter.getId(),
+                counter.getName(),
+                counter.getPinnedLocationName(),
+                counter.getAddress(),
+                counter.getLatitude(),
+                counter.getLongitude()
+        );
+    }
+
+    private CounterLocation resolveCounterLocation(Retailer retailer) {
+        return new CounterLocation(
+                RouteCounterType.RETAILER,
+                retailer.getId(),
+                retailer.getName(),
+                retailer.getPinnedLocationName(),
+                retailer.getAddress(),
+                retailer.getLatitude(),
+                retailer.getLongitude()
+        );
+    }
+
+    private CounterLocationPickerResponse toLocationPickerResponse(CounterLocation location) {
+        return CounterLocationPickerResponse.builder()
+                .counterType(location.counterType())
+                .counterId(location.counterId())
+                .counterName(location.counterName())
+                .locationName(location.locationName())
+                .address(location.address())
+                .latitude(location.latitude())
+                .longitude(location.longitude())
+                .openStreetMapPinUrl(buildOpenStreetMapPinUrl(location.latitude(), location.longitude()))
+                .openStreetMapSearchUrl(buildOpenStreetMapSearchUrl(location.locationName(), location.counterName(), location.address()))
+                .openStreetMapEditorUrl(buildOpenStreetMapEditorUrl(location.latitude(), location.longitude()))
+                .build();
+    }
+
+    private String buildOpenStreetMapSearchUrl(String locationName, String counterName, String address) {
+        String resolvedName = StringUtils.hasText(locationName)
+                ? locationName
+                : (StringUtils.hasText(counterName) ? counterName : "Store");
+        String query = StringUtils.hasText(address)
+                ? resolvedName + " " + address
+                : resolvedName;
+        String encoded = URLEncoder.encode(query.trim(), StandardCharsets.UTF_8);
+        return "https://www.openstreetmap.org/search?query=" + encoded;
+    }
+
+    private String buildOpenStreetMapPinUrl(Double latitude, Double longitude) {
+        if (latitude == null || longitude == null) {
+            return null;
+        }
+        return "https://www.openstreetmap.org/?mlat="
+                + latitude
+                + "&mlon="
+                + longitude
+                + "#map=18/"
+                + latitude
+                + "/"
+                + longitude;
+    }
+
+    private String buildOpenStreetMapEditorUrl(Double latitude, Double longitude) {
+        if (latitude == null || longitude == null) {
+            return null;
+        }
+        return "https://www.openstreetmap.org/edit?editor=id#map=19/"
+                + latitude
+                + "/"
+                + longitude;
+    }
+
     private Double normalizeLatitude(Double value) {
         if (value == null) {
             return null;
@@ -444,5 +601,23 @@ public class CustomerNetworkServiceImpl implements CustomerNetworkService {
             throw new BadRequestException("Longitude must be between -180 and 180");
         }
         return value;
+    }
+
+    private String normalizeLocationName(String value) {
+        if (!StringUtils.hasText(value)) {
+            throw new BadRequestException("Location name is required");
+        }
+        return value.trim();
+    }
+
+    private record CounterLocation(
+            RouteCounterType counterType,
+            UUID counterId,
+            String counterName,
+            String locationName,
+            String address,
+            Double latitude,
+            Double longitude
+    ) {
     }
 }

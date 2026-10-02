@@ -18,6 +18,7 @@ public class CustomerCounterRowResponse {
     private String distributorName;
     private String code;
     private String name;
+    private String pinnedLocationName;
     private String contactPerson;
     private String address;
     private String mobile;
@@ -38,6 +39,7 @@ public class CustomerCounterRowResponse {
                 .distributorName(counter.getDistributor().getName())
                 .code(counter.getCode())
                 .name(counter.getName())
+                .pinnedLocationName(counter.getPinnedLocationName())
                 .contactPerson(counter.getContactPerson())
                 .address(counter.getAddress())
                 .mobile(counter.getMobile())

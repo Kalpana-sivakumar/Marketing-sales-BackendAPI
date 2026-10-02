@@ -1,13 +1,16 @@
 package com.marketingsales.backend.controller;
 
 import com.marketingsales.backend.constant.CustomerStatus;
+import com.marketingsales.backend.constant.RouteCounterType;
 import com.marketingsales.backend.dto.request.BulkCounterCoordinateUpdateRequest;
+import com.marketingsales.backend.dto.request.CounterCoordinateUpdateRequest;
 import com.marketingsales.backend.dto.request.CustomerStatusRequest;
 import com.marketingsales.backend.dto.request.UpsertCustomerCounterRequest;
 import com.marketingsales.backend.dto.request.UpsertDistributorRequest;
 import com.marketingsales.backend.dto.request.UpsertRetailerRequest;
 import com.marketingsales.backend.dto.response.ApiResponse;
 import com.marketingsales.backend.dto.response.BulkCounterCoordinateUpdateResponse;
+import com.marketingsales.backend.dto.response.CounterLocationPickerResponse;
 import com.marketingsales.backend.dto.response.CustomerCounterRowResponse;
 import com.marketingsales.backend.dto.response.DistributorRowResponse;
 import com.marketingsales.backend.dto.response.RetailerRowResponse;
@@ -175,6 +178,24 @@ public class AdminCustomerNetworkController {
         return ApiResponse.success(
                 "Coordinates updated successfully",
                 customerNetworkService.bulkUpdateCoordinates(request)
+        );
+    }
+
+    @GetMapping("/coordinates/picker")
+    public ApiResponse<CounterLocationPickerResponse> getCounterLocationPicker(
+            @RequestParam RouteCounterType counterType,
+            @RequestParam UUID counterId
+    ) {
+        return ApiResponse.success(customerNetworkService.getCounterLocationPicker(counterType, counterId));
+    }
+
+    @PatchMapping("/coordinates")
+    public ApiResponse<CounterLocationPickerResponse> updateCoordinate(
+            @Valid @RequestBody CounterCoordinateUpdateRequest request
+    ) {
+        return ApiResponse.success(
+                "Location pinned successfully",
+                customerNetworkService.updateCoordinate(request)
         );
     }
 }

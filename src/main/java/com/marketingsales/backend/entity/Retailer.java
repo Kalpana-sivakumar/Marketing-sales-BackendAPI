@@ -53,6 +53,9 @@ public class Retailer {
     @Column(length = 500)
     private String address;
 
+    @Column(name = "pinned_location_name", length = 180)
+    private String pinnedLocationName;
+
     @Column(nullable = false, length = 20)
     private String mobile;
 

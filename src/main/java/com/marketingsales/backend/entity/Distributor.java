@@ -50,6 +50,9 @@ public class Distributor {
     @Column(length = 500)
     private String address;
 
+    @Column(name = "pinned_location_name", length = 180)
+    private String pinnedLocationName;
+
     @Column(name = "contact_person", nullable = false, length = 150)
     private String contactPerson;
 

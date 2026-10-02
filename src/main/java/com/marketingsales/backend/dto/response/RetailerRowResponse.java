@@ -17,6 +17,7 @@ public class RetailerRowResponse {
     private String hierarchyLabel;
     private String code;
     private String name;
+    private String pinnedLocationName;
     private String contactPerson;
     private String address;
     private String mobile;
@@ -36,6 +37,7 @@ public class RetailerRowResponse {
                 .hierarchyLabel(retailer.isDirectUnderGen1() ? "Direct under Gen1" : "")
                 .code(retailer.getCode())
                 .name(retailer.getName())
+                .pinnedLocationName(retailer.getPinnedLocationName())
                 .contactPerson(retailer.getContactPerson())
                 .address(retailer.getAddress())
                 .mobile(retailer.getMobile())

@@ -1,11 +1,14 @@
 package com.marketingsales.backend.service;
 
 import com.marketingsales.backend.constant.CustomerStatus;
+import com.marketingsales.backend.constant.RouteCounterType;
 import com.marketingsales.backend.dto.request.BulkCounterCoordinateUpdateRequest;
+import com.marketingsales.backend.dto.request.CounterCoordinateUpdateRequest;
 import com.marketingsales.backend.dto.request.UpsertCustomerCounterRequest;
 import com.marketingsales.backend.dto.request.UpsertDistributorRequest;
 import com.marketingsales.backend.dto.request.UpsertRetailerRequest;
 import com.marketingsales.backend.dto.response.BulkCounterCoordinateUpdateResponse;
+import com.marketingsales.backend.dto.response.CounterLocationPickerResponse;
 import com.marketingsales.backend.dto.response.CustomerCounterRowResponse;
 import com.marketingsales.backend.dto.response.DistributorRowResponse;
 import com.marketingsales.backend.dto.response.RetailerRowResponse;
@@ -52,4 +55,8 @@ public interface CustomerNetworkService {
     RetailerRowResponse updateRetailerStatus(UUID id, boolean active);
 
     BulkCounterCoordinateUpdateResponse bulkUpdateCoordinates(BulkCounterCoordinateUpdateRequest request);
+
+    CounterLocationPickerResponse getCounterLocationPicker(RouteCounterType counterType, UUID counterId);
+
+    CounterLocationPickerResponse updateCoordinate(CounterCoordinateUpdateRequest request);
 }

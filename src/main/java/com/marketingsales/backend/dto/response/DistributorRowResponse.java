@@ -16,6 +16,7 @@ public class DistributorRowResponse {
     private UUID id;
     private String code;
     private String name;
+    private String pinnedLocationName;
     private String address;
     private Double latitude;
     private Double longitude;
@@ -34,6 +35,7 @@ public class DistributorRowResponse {
                 .id(distributor.getId())
                 .code(distributor.getCode())
                 .name(distributor.getName())
+                .pinnedLocationName(distributor.getPinnedLocationName())
                 .address(distributor.getAddress())
                 .latitude(distributor.getLatitude())
                 .longitude(distributor.getLongitude())
