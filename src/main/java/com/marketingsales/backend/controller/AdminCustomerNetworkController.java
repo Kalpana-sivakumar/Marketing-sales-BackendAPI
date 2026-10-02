@@ -1,11 +1,13 @@
 package com.marketingsales.backend.controller;
 
 import com.marketingsales.backend.constant.CustomerStatus;
+import com.marketingsales.backend.dto.request.BulkCounterCoordinateUpdateRequest;
 import com.marketingsales.backend.dto.request.CustomerStatusRequest;
 import com.marketingsales.backend.dto.request.UpsertCustomerCounterRequest;
 import com.marketingsales.backend.dto.request.UpsertDistributorRequest;
 import com.marketingsales.backend.dto.request.UpsertRetailerRequest;
 import com.marketingsales.backend.dto.response.ApiResponse;
+import com.marketingsales.backend.dto.response.BulkCounterCoordinateUpdateResponse;
 import com.marketingsales.backend.dto.response.CustomerCounterRowResponse;
 import com.marketingsales.backend.dto.response.DistributorRowResponse;
 import com.marketingsales.backend.dto.response.RetailerRowResponse;
@@ -164,5 +166,15 @@ public class AdminCustomerNetworkController {
     ) {
         String message = request.getActive() ? "Retailer activated successfully" : "Retailer deactivated successfully";
         return ApiResponse.success(message, customerNetworkService.updateRetailerStatus(id, request.getActive()));
+    }
+
+    @PatchMapping("/coordinates/bulk")
+    public ApiResponse<BulkCounterCoordinateUpdateResponse> bulkUpdateCoordinates(
+            @Valid @RequestBody BulkCounterCoordinateUpdateRequest request
+    ) {
+        return ApiResponse.success(
+                "Coordinates updated successfully",
+                customerNetworkService.bulkUpdateCoordinates(request)
+        );
     }
 }

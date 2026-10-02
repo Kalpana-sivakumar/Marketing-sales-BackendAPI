@@ -9,6 +9,8 @@ import com.marketingsales.backend.dto.response.AvailableCounterResponse;
 import com.marketingsales.backend.dto.response.RoutePageResponse;
 import com.marketingsales.backend.dto.response.RoutePlanResponse;
 import com.marketingsales.backend.dto.response.RouteResponse;
+import com.marketingsales.backend.dto.response.StaffCounterResponse;
+import com.marketingsales.backend.dto.response.StaffOptionResponse;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -22,6 +24,8 @@ public interface RouteManagementService {
 
     RouteResponse updateRoute(UUID routeId, UpsertRouteRequest request);
 
+    void deleteRoute(UUID routeId);
+
     RoutePlanResponse getRoutePlan(UUID routeId, LocalDate weekStart);
 
     RoutePlanResponse assignStaff(UUID routeId, LocalDate weekStart, AssignRoutePlanStaffRequest request);
@@ -33,6 +37,10 @@ public interface RouteManagementService {
     void removeCounter(UUID routeId, UUID itemId);
 
     List<AvailableCounterResponse> getAvailableCounters(LocalDate weekStart, String search, UUID excludeRouteId);
+
+    List<StaffOptionResponse> getAssignableStaff(LocalDate weekStart, UUID routeId);
+
+    List<StaffCounterResponse> getStaffCounters(UUID staffId, LocalDate weekStart);
 
     RoutePlanResponse publish(UUID routeId, LocalDate weekStart);
 

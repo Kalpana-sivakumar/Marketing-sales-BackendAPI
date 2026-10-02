@@ -14,6 +14,8 @@ import com.marketingsales.backend.dto.response.RoutePlanItemResponse;
 import com.marketingsales.backend.dto.response.RoutePlanResponse;
 import com.marketingsales.backend.dto.response.RouteResponse;
 import com.marketingsales.backend.dto.response.RouteRowResponse;
+import com.marketingsales.backend.dto.response.StaffCounterResponse;
+import com.marketingsales.backend.dto.response.StaffOptionResponse;
 import com.marketingsales.backend.entity.CustomerCounter;
 import com.marketingsales.backend.entity.Distributor;
 import com.marketingsales.backend.entity.Retailer;
@@ -154,6 +156,13 @@ public class RouteManagementServiceImpl implements RouteManagementService {
     }
 
     @Override
+    @Transactional
+    public void deleteRoute(UUID routeId) {
+        Route route = getRoute(routeId);
+        routeRepository.delete(route);
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public RoutePlanResponse getRoutePlan(UUID routeId, LocalDate weekStart) {
         Route route = getRoute(routeId);
@@ -184,10 +193,126 @@ public class RouteManagementServiceImpl implements RouteManagementService {
         markPlanDraftIfPublished(plan);
         routePlanRepository.saveAndFlush(plan);
 
-        if (routePlanItemRepository.countByRoutePlanId(plan.getId()) == 0) {
-            autoLoadMasterCounters(route, plan);
-        }
+        // Always sync the plan with the staff's assigned network from the customer network page
+        routePlanItemRepository.deleteByRoutePlanId(plan.getId());
+        autoLoadStaffCounters(route, plan, staff.getId());
         return toRoutePlanResponse(plan);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<StaffOptionResponse> getAssignableStaff(LocalDate weekStart, UUID routeId) {
+        LocalDate validatedWeek = requireMonday(weekStart, "weekStart");
+        getRoute(routeId);
+
+        Map<UUID, RoutePlan> planByStaffId = routePlanRepository.findAllByWeekStart(validatedWeek).stream()
+                .filter(p -> p.getStaffId() != null)
+                .collect(Collectors.toMap(RoutePlan::getStaffId, Function.identity(), (left, right) -> left));
+        Map<UUID, Route> routeById = routeRepository.findAll().stream()
+                .collect(Collectors.toMap(Route::getId, Function.identity()));
+
+        List<StaffOptionResponse> options = new ArrayList<>();
+        for (User staff : userRepository.findAllByRoleAndEnabledTrueOrderByFullNameAsc(Role.STAFF)) {
+            RoutePlan planned = planByStaffId.get(staff.getId());
+            UUID plannedRouteId = null;
+            String plannedRouteName = null;
+            if (planned != null && !planned.getRouteId().equals(routeId)) {
+                plannedRouteId = planned.getRouteId();
+                Route plannedRoute = routeById.get(plannedRouteId);
+                plannedRouteName = plannedRoute != null ? plannedRoute.getName() : null;
+            }
+
+            long distributorCount = distributorRepository.findAllByAssignedStaffIdAndStatusOrderByNameAsc(staff.getId(), CustomerStatus.ACTIVE).size();
+            long customerCount = customerCounterRepository.findAllByDistributorAssignedStaffIdAndStatusOrderByNameAsc(staff.getId(), CustomerStatus.ACTIVE).size();
+            long retailerCount = retailerRepository.findAllByAssignedStaffIdAndStatusOrderByNameAsc(staff.getId(), CustomerStatus.ACTIVE).size();
+
+            options.add(StaffOptionResponse.builder()
+                    .staffId(staff.getId())
+                    .fullName(staff.getFullName())
+                    .email(staff.getEmail())
+                    .region(staff.getRegion())
+                    .assignedDistributorCount(distributorCount)
+                    .assignedCustomerCount(customerCount)
+                    .assignedRetailerCount(retailerCount)
+                    .plannedRouteId(plannedRouteId)
+                    .plannedRouteName(plannedRouteName)
+                    .build());
+        }
+        return options;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<StaffCounterResponse> getStaffCounters(UUID staffId, LocalDate weekStart) {
+        LocalDate validatedWeek = requireMonday(weekStart, "weekStart");
+        User staff = userRepository.findById(staffId)
+                .orElseThrow(() -> new ResourceNotFoundException("Staff user not found"));
+        if (staff.getRole() != Role.STAFF) {
+            throw new BadRequestException("User must have STAFF role");
+        }
+
+        List<RoutePlanItem> weekItems = routePlanItemRepository.findAllByWeekStart(validatedWeek);
+        Map<String, RoutePlanItem> occupiedByKey = weekItems.stream()
+                .collect(Collectors.toMap(this::keyOf, Function.identity(), (left, right) -> left));
+        Map<UUID, RoutePlan> planById = routePlanRepository.findAllByWeekStart(validatedWeek).stream()
+                .collect(Collectors.toMap(RoutePlan::getId, Function.identity()));
+        Map<UUID, Route> routeById = routeRepository.findAll().stream()
+                .collect(Collectors.toMap(Route::getId, Function.identity()));
+
+        List<StaffCounterResponse> responses = new ArrayList<>();
+
+        for (Distributor distributor : distributorRepository.findAllByAssignedStaffIdAndStatusOrderByNameAsc(staffId, CustomerStatus.ACTIVE)) {
+            responses.add(buildStaffCounterResponse(
+                    RouteCounterType.DISTRIBUTOR, distributor.getId(), distributor.getCode(), distributor.getName(),
+                    distributor.getZone(), distributor.getRoute(), occupiedByKey, planById, routeById));
+        }
+        for (CustomerCounter counter : customerCounterRepository.findAllByDistributorAssignedStaffIdAndStatusOrderByNameAsc(staffId, CustomerStatus.ACTIVE)) {
+            responses.add(buildStaffCounterResponse(
+                    RouteCounterType.CUSTOMER, counter.getId(), counter.getCode(), counter.getName(),
+                    counter.getDistributor().getZone(), counter.getDistributor().getRoute(), occupiedByKey, planById, routeById));
+        }
+        for (Retailer retailer : retailerRepository.findAllByAssignedStaffIdAndStatusOrderByNameAsc(staffId, CustomerStatus.ACTIVE)) {
+            responses.add(buildStaffCounterResponse(
+                    RouteCounterType.RETAILER, retailer.getId(), retailer.getCode(), retailer.getName(),
+                    retailer.getZone(), retailer.getRoute(), occupiedByKey, planById, routeById));
+        }
+
+        responses.sort(Comparator.comparing(StaffCounterResponse::getName, String.CASE_INSENSITIVE_ORDER));
+        return responses;
+    }
+
+    private StaffCounterResponse buildStaffCounterResponse(
+            RouteCounterType type,
+            UUID counterId,
+            String code,
+            String name,
+            String zone,
+            String route,
+            Map<String, RoutePlanItem> occupiedByKey,
+            Map<UUID, RoutePlan> planById,
+            Map<UUID, Route> routeById
+    ) {
+        UUID plannedRouteId = null;
+        String plannedRouteName = null;
+        RoutePlanItem occupiedItem = occupiedByKey.get(keyOf(type, counterId));
+        if (occupiedItem != null) {
+            RoutePlan occupiedPlan = planById.get(occupiedItem.getRoutePlanId());
+            if (occupiedPlan != null) {
+                plannedRouteId = occupiedPlan.getRouteId();
+                Route r = routeById.get(plannedRouteId);
+                plannedRouteName = r != null ? r.getName() : null;
+            }
+        }
+        return StaffCounterResponse.builder()
+                .counterType(type)
+                .counterId(counterId)
+                .code(code)
+                .name(name)
+                .zone(zone)
+                .route(route)
+                .plannedRouteId(plannedRouteId)
+                .plannedRouteName(plannedRouteName)
+                .build();
     }
 
     @Override
@@ -212,7 +337,7 @@ public class RouteManagementServiceImpl implements RouteManagementService {
             itemById.get(orderedIds.get(i)).setVisitOrder(i + 1);
         }
 
-        routePlanItemRepository.saveAll(currentItems);
+        applyVisitOrderSafely(currentItems);
         routePlanRepository.saveAndFlush(plan);
         return toRoutePlanResponse(plan);
     }
@@ -501,6 +626,55 @@ public class RouteManagementServiceImpl implements RouteManagementService {
         }
     }
 
+    private void autoLoadStaffCounters(Route route, RoutePlan plan, UUID staffId) {
+        LocalDate weekStart = plan.getWeekStart();
+        Set<String> occupiedKeys = routePlanItemRepository.findAllByWeekStart(weekStart)
+                .stream()
+                .map(this::keyOf)
+                .collect(Collectors.toSet());
+
+        List<AutoLoadCandidate> candidates = new ArrayList<>();
+
+        for (Distributor distributor : distributorRepository.findAllByAssignedStaffIdAndStatusOrderByNameAsc(staffId, CustomerStatus.ACTIVE)) {
+            String key = keyOf(RouteCounterType.DISTRIBUTOR, distributor.getId());
+            if (!occupiedKeys.contains(key)) {
+                candidates.add(new AutoLoadCandidate(RouteCounterType.DISTRIBUTOR, distributor.getId(), distributor.getName()));
+            }
+        }
+
+        for (CustomerCounter counter : customerCounterRepository.findAllByDistributorAssignedStaffIdAndStatusOrderByNameAsc(staffId, CustomerStatus.ACTIVE)) {
+            String key = keyOf(RouteCounterType.CUSTOMER, counter.getId());
+            if (!occupiedKeys.contains(key)) {
+                candidates.add(new AutoLoadCandidate(RouteCounterType.CUSTOMER, counter.getId(), counter.getName()));
+            }
+        }
+
+        for (Retailer retailer : retailerRepository.findAllByAssignedStaffIdAndStatusOrderByNameAsc(staffId, CustomerStatus.ACTIVE)) {
+            String key = keyOf(RouteCounterType.RETAILER, retailer.getId());
+            if (!occupiedKeys.contains(key)) {
+                candidates.add(new AutoLoadCandidate(RouteCounterType.RETAILER, retailer.getId(), retailer.getName()));
+            }
+        }
+
+        candidates.sort(
+                Comparator.comparing((AutoLoadCandidate candidate) -> candidate.counterType().ordinal())
+                        .thenComparing(AutoLoadCandidate::name, String.CASE_INSENSITIVE_ORDER)
+        );
+
+        int visitOrder = 1;
+        for (AutoLoadCandidate candidate : candidates) {
+            RoutePlanItem item = RoutePlanItem.builder()
+                    .routePlanId(plan.getId())
+                    .routePlan(plan)
+                    .weekStart(weekStart)
+                    .counterType(candidate.counterType())
+                    .counterId(candidate.counterId())
+                    .visitOrder(visitOrder++)
+                    .build();
+            routePlanItemRepository.save(item);
+        }
+    }
+
     private RoutePlanResponse toRoutePlanResponse(RoutePlan plan) {
         Route route = plan.getRoute();
         if (route == null) {
@@ -649,14 +823,36 @@ public class RouteManagementServiceImpl implements RouteManagementService {
         for (int i = 0; i < items.size(); i++) {
             items.get(i).setVisitOrder(i + 1);
         }
-        routePlanItemRepository.saveAll(items);
+        applyVisitOrderSafely(items);
+    }
+
+    private void applyVisitOrderSafely(List<RoutePlanItem> items) {
+        if (items.isEmpty()) {
+            return;
+        }
+
+        // Snapshot desired final order before moving values out of the unique range.
+        Map<UUID, Integer> desiredOrderById = items.stream()
+                .collect(Collectors.toMap(RoutePlanItem::getId, RoutePlanItem::getVisitOrder));
+
+        // Two-phase update prevents temporary duplicates on (route_plan_id, visit_order).
+        int offset = items.size() + 1000;
+        for (RoutePlanItem item : items) {
+            item.setVisitOrder(item.getVisitOrder() + offset);
+        }
+        routePlanItemRepository.saveAllAndFlush(items);
+
+        for (RoutePlanItem item : items) {
+            item.setVisitOrder(desiredOrderById.get(item.getId()));
+        }
+        routePlanItemRepository.saveAllAndFlush(items);
     }
 
     private LocalDate requireEditableWeek(LocalDate weekStart) {
         LocalDate validatedWeek = requireMonday(weekStart, "weekStart");
         LocalDate thisWeekMonday = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
-        if (!validatedWeek.isAfter(thisWeekMonday)) {
-            throw new BadRequestException("Current week and past weeks are locked for editing");
+        if (validatedWeek.isBefore(thisWeekMonday)) {
+            throw new BadRequestException("Past weeks are locked for editing");
         }
         return validatedWeek;
     }

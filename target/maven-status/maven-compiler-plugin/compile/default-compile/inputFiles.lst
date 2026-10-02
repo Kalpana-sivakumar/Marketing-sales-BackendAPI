@@ -7,8 +7,10 @@ C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backe
 C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backend\constant\Role.java
 C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backend\constant\RouteCounterType.java
 C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backend\constant\RoutePlanStatus.java
+C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backend\constant\RouteVisitStatus.java
 C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backend\controller\AdminAttendanceController.java
 C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backend\controller\AdminCustomerNetworkController.java
+C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backend\controller\AdminRouteTrackingController.java
 C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backend\controller\AdminStaffLocationController.java
 C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backend\controller\AuthController.java
 C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backend\controller\DemoRoleController.java
@@ -25,6 +27,8 @@ C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backe
 C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backend\dto\request\AssignRoutePlanStaffRequest.java
 C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backend\dto\request\AttendanceActionRequest.java
 C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backend\dto\request\AttendanceRoutePointRequest.java
+C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backend\dto\request\BulkCounterCoordinateItemRequest.java
+C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backend\dto\request\BulkCounterCoordinateUpdateRequest.java
 C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backend\dto\request\CounterOrderPricingRequest.java
 C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backend\dto\request\CreateProductRequest.java
 C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backend\dto\request\CreateUserRequest.java
@@ -44,11 +48,13 @@ C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backe
 C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backend\dto\request\UserStatusRequest.java
 C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backend\dto\response\ActiveAttendanceResponse.java
 C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backend\dto\response\AdminLiveStaffLocationResponse.java
+C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backend\dto\response\AdminRouteTrackingRowResponse.java
 C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backend\dto\response\AdminTodayAttendanceResponse.java
 C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backend\dto\response\ApiResponse.java
 C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backend\dto\response\AttendanceRoutePointResponse.java
 C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backend\dto\response\AuthResponse.java
 C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backend\dto\response\AvailableCounterResponse.java
+C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backend\dto\response\BulkCounterCoordinateUpdateResponse.java
 C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backend\dto\response\CounterOrderPricingResponse.java
 C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backend\dto\response\CustomerCounterRowResponse.java
 C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backend\dto\response\DistributorRowResponse.java
@@ -63,9 +69,12 @@ C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backe
 C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backend\dto\response\RouteResponse.java
 C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backend\dto\response\RouteRowResponse.java
 C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backend\dto\response\StaffAttendanceResponse.java
+C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backend\dto\response\StaffCounterResponse.java
 C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backend\dto\response\StaffLiveLocationResponse.java
+C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backend\dto\response\StaffOptionResponse.java
 C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backend\dto\response\StaffRouteResponse.java
 C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backend\dto\response\StaffRouteStopResponse.java
+C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backend\dto\response\StaffRouteStopVisitResponse.java
 C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backend\dto\response\UserPageResponse.java
 C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backend\dto\response\UserResponse.java
 C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backend\entity\AttendanceRoutePoint.java
@@ -78,6 +87,7 @@ C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backe
 C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backend\entity\RoutePlanItem.java
 C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backend\entity\StaffAttendance.java
 C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backend\entity\StaffLocationTracking.java
+C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backend\entity\StaffRouteStopVisit.java
 C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backend\entity\User.java
 C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backend\exception\BadRequestException.java
 C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backend\exception\DuplicateResourceException.java
@@ -95,6 +105,7 @@ C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backe
 C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backend\repository\RouteRepository.java
 C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backend\repository\StaffAttendanceRepository.java
 C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backend\repository\StaffLocationTrackingRepository.java
+C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backend\repository\StaffRouteStopVisitRepository.java
 C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backend\repository\UserRepository.java
 C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backend\security\CustomUserDetailsService.java
 C:\Users\kalpa\Marketing-sales-BackendAPI\src\main\java\com\marketingsales\backend\security\JwtAuthenticationEntryPoint.java

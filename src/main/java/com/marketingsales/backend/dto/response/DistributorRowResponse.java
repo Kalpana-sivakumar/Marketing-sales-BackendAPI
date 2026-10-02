@@ -17,6 +17,8 @@ public class DistributorRowResponse {
     private String code;
     private String name;
     private String address;
+    private Double latitude;
+    private Double longitude;
     private String contactPerson;
     private String mobile;
     private String zone;
@@ -33,6 +35,8 @@ public class DistributorRowResponse {
                 .code(distributor.getCode())
                 .name(distributor.getName())
                 .address(distributor.getAddress())
+                .latitude(distributor.getLatitude())
+                .longitude(distributor.getLongitude())
                 .contactPerson(distributor.getContactPerson())
                 .mobile(distributor.getMobile())
                 .zone(distributor.getZone())

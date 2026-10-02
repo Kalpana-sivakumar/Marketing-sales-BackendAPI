@@ -13,6 +13,7 @@ public class StaffRouteResponse {
     private UUID routeId;
     private String routeName;
     private String zone;
+    private LocalDate routeDate;
     private LocalDate weekStart;
     private List<StaffRouteStopResponse> stops;
 }

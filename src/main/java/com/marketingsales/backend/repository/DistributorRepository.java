@@ -35,6 +35,8 @@ public interface DistributorRepository extends JpaRepository<Distributor, UUID> 
 
     List<Distributor> findAllByMasterRouteIdAndStatusOrderByNameAsc(UUID masterRouteId, CustomerStatus status);
 
+    List<Distributor> findAllByAssignedStaffIdAndStatusOrderByNameAsc(UUID assignedStaffId, CustomerStatus status);
+
     @Query("""
             SELECT d FROM Distributor d
             WHERE d.status = :status
@@ -48,4 +50,6 @@ public interface DistributorRepository extends JpaRepository<Distributor, UUID> 
             @Param("status") CustomerStatus status,
             @Param("searchPattern") String searchPattern
     );
+
+    boolean existsByAssignedStaffId(UUID assignedStaffId);
 }

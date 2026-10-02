@@ -32,6 +32,10 @@ public interface RetailerRepository extends JpaRepository<Retailer, UUID> {
 
     List<Retailer> findAllByMasterRouteIdAndStatusOrderByNameAsc(UUID masterRouteId, CustomerStatus status);
 
+    List<Retailer> findAllByAssignedStaffIdAndStatusOrderByNameAsc(UUID assignedStaffId, CustomerStatus status);
+
+    boolean existsByAssignedStaffId(UUID assignedStaffId);
+
     @Query("""
             SELECT r FROM Retailer r
             WHERE r.status = :status

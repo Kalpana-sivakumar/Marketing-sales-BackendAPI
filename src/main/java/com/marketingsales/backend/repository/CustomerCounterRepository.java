@@ -37,6 +37,18 @@ public interface CustomerCounterRepository extends JpaRepository<CustomerCounter
 
     @Query("""
             SELECT c FROM CustomerCounter c
+            JOIN c.distributor d
+            WHERE d.assignedStaffId = :staffId
+              AND c.status = :status
+            ORDER BY c.name ASC
+            """)
+    List<CustomerCounter> findAllByDistributorAssignedStaffIdAndStatusOrderByNameAsc(
+            @Param("staffId") UUID staffId,
+            @Param("status") CustomerStatus status
+    );
+
+    @Query("""
+            SELECT c FROM CustomerCounter c
             WHERE c.status = :status
               AND (:searchPattern = ''
                     OR LOWER(c.name) LIKE :searchPattern

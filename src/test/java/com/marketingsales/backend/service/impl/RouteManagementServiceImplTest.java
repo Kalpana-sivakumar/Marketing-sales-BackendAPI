@@ -78,7 +78,7 @@ class RouteManagementServiceImplTest {
     }
 
     @Test
-    void assignStaffAutoLoadsMasterCountersWhenPlanIsEmpty() {
+    void assignStaffAutoLoadsStaffCountersWhenPlanIsEmpty() {
         RoutePlan plan = RoutePlan.builder()
                 .id(UUID.randomUUID())
                 .routeId(route.getId())
@@ -97,11 +97,10 @@ class RouteManagementServiceImplTest {
         when(routePlanRepository.findByRouteIdAndWeekStart(route.getId(), nextWeek)).thenReturn(Optional.of(plan));
         when(routePlanRepository.existsByWeekStartAndStaffIdAndRouteIdNot(nextWeek, staff.getId(), route.getId())).thenReturn(false);
         when(routePlanRepository.saveAndFlush(any(RoutePlan.class))).thenReturn(plan);
-        when(routePlanItemRepository.countByRoutePlanId(plan.getId())).thenReturn(0L);
         when(routePlanItemRepository.findAllByWeekStart(nextWeek)).thenReturn(List.of());
-        when(distributorRepository.findAllByMasterRouteIdAndStatusOrderByNameAsc(route.getId(), CustomerStatus.ACTIVE)).thenReturn(List.of(distributor));
-        when(customerCounterRepository.findAllByMasterRouteIdAndStatusOrderByNameAsc(route.getId(), CustomerStatus.ACTIVE)).thenReturn(List.of(customer));
-        when(retailerRepository.findAllByMasterRouteIdAndStatusOrderByNameAsc(route.getId(), CustomerStatus.ACTIVE)).thenReturn(List.of(retailer));
+        when(distributorRepository.findAllByAssignedStaffIdAndStatusOrderByNameAsc(staff.getId(), CustomerStatus.ACTIVE)).thenReturn(List.of(distributor));
+        when(customerCounterRepository.findAllByDistributorAssignedStaffIdAndStatusOrderByNameAsc(staff.getId(), CustomerStatus.ACTIVE)).thenReturn(List.of(customer));
+        when(retailerRepository.findAllByAssignedStaffIdAndStatusOrderByNameAsc(staff.getId(), CustomerStatus.ACTIVE)).thenReturn(List.of(retailer));
         when(routePlanItemRepository.findAllByRoutePlanIdOrderByVisitOrderAsc(plan.getId())).thenReturn(List.of());
 
         AssignRoutePlanStaffRequest request = new AssignRoutePlanStaffRequest();
@@ -199,14 +198,14 @@ class RouteManagementServiceImplTest {
     }
 
     @Test
-    void lockedWeekRejectsEdits() {
-        LocalDate currentWeek = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+    void lockedPastWeekRejectsEdits() {
+        LocalDate pastWeek = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)).minusWeeks(1);
         when(routeRepository.findById(route.getId())).thenReturn(Optional.of(route));
 
         AssignRoutePlanStaffRequest request = new AssignRoutePlanStaffRequest();
         request.setStaffId(staff.getId());
 
-        assertThrows(BadRequestException.class, () -> service.assignStaff(route.getId(), currentWeek, request));
+        assertThrows(BadRequestException.class, () -> service.assignStaff(route.getId(), pastWeek, request));
         verify(routePlanRepository, never()).saveAndFlush(any());
     }
 

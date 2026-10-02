@@ -44,4 +44,6 @@ public interface RoutePlanRepository extends JpaRepository<RoutePlan, UUID> {
     );
 
     List<RoutePlan> findAllByWeekStart(LocalDate weekStart);
+
+    List<RoutePlan> findAllByWeekStartAndStatus(LocalDate weekStart, RoutePlanStatus status);
 }

@@ -46,4 +46,6 @@ public interface RoutePlanItemRepository extends JpaRepository<RoutePlanItem, UU
             GROUP BY i.routePlanId
             """)
     List<RoutePlanItemCountProjection> countByRoutePlanIds(@Param("routePlanIds") Collection<UUID> routePlanIds);
+
+    List<RoutePlanItem> findAllByRoutePlanIdInOrderByRoutePlanIdAscVisitOrderAsc(Collection<UUID> routePlanIds);
 }

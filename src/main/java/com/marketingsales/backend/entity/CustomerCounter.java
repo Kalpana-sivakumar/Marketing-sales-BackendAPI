@@ -50,6 +50,9 @@ public class CustomerCounter {
     @Column(name = "contact_person", nullable = false, length = 150)
     private String contactPerson;
 
+    @Column(length = 500)
+    private String address;
+
     @Column(nullable = false, length = 20)
     private String mobile;
 
@@ -62,6 +65,12 @@ public class CustomerCounter {
 
     @Column(name = "master_route_id")
     private UUID masterRouteId;
+
+    @Column
+    private Double latitude;
+
+    @Column
+    private Double longitude;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "master_route_id", insertable = false, updatable = false)

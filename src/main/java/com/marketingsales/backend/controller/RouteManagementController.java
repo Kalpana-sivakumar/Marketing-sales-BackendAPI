@@ -10,6 +10,8 @@ import com.marketingsales.backend.dto.response.AvailableCounterResponse;
 import com.marketingsales.backend.dto.response.RoutePageResponse;
 import com.marketingsales.backend.dto.response.RoutePlanResponse;
 import com.marketingsales.backend.dto.response.RouteResponse;
+import com.marketingsales.backend.dto.response.StaffCounterResponse;
+import com.marketingsales.backend.dto.response.StaffOptionResponse;
 import com.marketingsales.backend.service.RouteManagementService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -75,6 +77,13 @@ public class RouteManagementController {
         return ApiResponse.success("Route updated successfully", routeManagementService.updateRoute(id, request));
     }
 
+    @Operation(summary = "Delete route")
+    @DeleteMapping("/{id}")
+    public ApiResponse<Void> deleteRoute(@PathVariable UUID id) {
+        routeManagementService.deleteRoute(id);
+        return ApiResponse.success("Route deleted successfully", null);
+    }
+
     @Operation(summary = "Get route plan details")
     @GetMapping("/{routeId}/plan")
     public ApiResponse<RoutePlanResponse> getRoutePlan(
@@ -129,6 +138,24 @@ public class RouteManagementController {
             @RequestParam(required = false) UUID excludeRouteId
     ) {
         return ApiResponse.success(routeManagementService.getAvailableCounters(weekStart, search, excludeRouteId));
+    }
+
+    @Operation(summary = "List assignable staff for a route week")
+    @GetMapping("/{routeId}/assignable-staff")
+    public ApiResponse<List<StaffOptionResponse>> getAssignableStaff(
+            @PathVariable UUID routeId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate weekStart
+    ) {
+        return ApiResponse.success(routeManagementService.getAssignableStaff(weekStart, routeId));
+    }
+
+    @Operation(summary = "List counters assigned to a staff member")
+    @GetMapping("/staff/{staffId}/counters")
+    public ApiResponse<List<StaffCounterResponse>> getStaffCounters(
+            @PathVariable UUID staffId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate weekStart
+    ) {
+        return ApiResponse.success(routeManagementService.getStaffCounters(staffId, weekStart));
     }
 
     @Operation(summary = "Publish route plan")
