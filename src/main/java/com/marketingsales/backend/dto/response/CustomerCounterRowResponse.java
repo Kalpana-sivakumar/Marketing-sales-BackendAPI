@@ -19,7 +19,10 @@ public class CustomerCounterRowResponse {
     private String code;
     private String name;
     private String contactPerson;
+    private String address;
     private String mobile;
+    private Double latitude;
+    private Double longitude;
     private String zone;
     private String route;
     private UUID assignedStaffId;
@@ -36,7 +39,10 @@ public class CustomerCounterRowResponse {
                 .code(counter.getCode())
                 .name(counter.getName())
                 .contactPerson(counter.getContactPerson())
+                .address(counter.getAddress())
                 .mobile(counter.getMobile())
+                .latitude(counter.getLatitude())
+                .longitude(counter.getLongitude())
                 .zone(counter.getDistributor().getZone())
                 .route(counter.getDistributor().getRoute())
                 .assignedStaffId(counter.getDistributor().getAssignedStaffId())

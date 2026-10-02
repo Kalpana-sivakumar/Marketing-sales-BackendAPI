@@ -1,9 +1,11 @@
 package com.marketingsales.backend.service;
 
 import com.marketingsales.backend.constant.CustomerStatus;
+import com.marketingsales.backend.dto.request.BulkCounterCoordinateUpdateRequest;
 import com.marketingsales.backend.dto.request.UpsertCustomerCounterRequest;
 import com.marketingsales.backend.dto.request.UpsertDistributorRequest;
 import com.marketingsales.backend.dto.request.UpsertRetailerRequest;
+import com.marketingsales.backend.dto.response.BulkCounterCoordinateUpdateResponse;
 import com.marketingsales.backend.dto.response.CustomerCounterRowResponse;
 import com.marketingsales.backend.dto.response.DistributorRowResponse;
 import com.marketingsales.backend.dto.response.RetailerRowResponse;
@@ -48,4 +50,6 @@ public interface CustomerNetworkService {
     void deleteRetailer(UUID id);
 
     RetailerRowResponse updateRetailerStatus(UUID id, boolean active);
+
+    BulkCounterCoordinateUpdateResponse bulkUpdateCoordinates(BulkCounterCoordinateUpdateRequest request);
 }

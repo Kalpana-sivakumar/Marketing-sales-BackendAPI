@@ -87,4 +87,17 @@ public class Distributor {
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
+
+    @Column(name = "master_route_id")
+    private UUID masterRouteId;
+
+    @Column
+    private Double latitude;
+
+    @Column
+    private Double longitude;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "master_route_id", insertable = false, updatable = false)
+    private Route masterRoute;
 }

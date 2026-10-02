@@ -18,7 +18,10 @@ public class RetailerRowResponse {
     private String code;
     private String name;
     private String contactPerson;
+    private String address;
     private String mobile;
+    private Double latitude;
+    private Double longitude;
     private String zone;
     private String route;
     private UUID assignedStaffId;
@@ -34,7 +37,10 @@ public class RetailerRowResponse {
                 .code(retailer.getCode())
                 .name(retailer.getName())
                 .contactPerson(retailer.getContactPerson())
+                .address(retailer.getAddress())
                 .mobile(retailer.getMobile())
+                .latitude(retailer.getLatitude())
+                .longitude(retailer.getLongitude())
                 .zone(retailer.getZone())
                 .route(retailer.getRoute())
                 .assignedStaffId(retailer.getAssignedStaffId())

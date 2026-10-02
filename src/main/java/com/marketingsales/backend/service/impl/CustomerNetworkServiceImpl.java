@@ -2,9 +2,13 @@ package com.marketingsales.backend.service.impl;
 
 import com.marketingsales.backend.constant.CustomerStatus;
 import com.marketingsales.backend.constant.Role;
+import com.marketingsales.backend.constant.RouteCounterType;
+import com.marketingsales.backend.dto.request.BulkCounterCoordinateItemRequest;
+import com.marketingsales.backend.dto.request.BulkCounterCoordinateUpdateRequest;
 import com.marketingsales.backend.dto.request.UpsertCustomerCounterRequest;
 import com.marketingsales.backend.dto.request.UpsertDistributorRequest;
 import com.marketingsales.backend.dto.request.UpsertRetailerRequest;
+import com.marketingsales.backend.dto.response.BulkCounterCoordinateUpdateResponse;
 import com.marketingsales.backend.dto.response.CustomerCounterRowResponse;
 import com.marketingsales.backend.dto.response.DistributorRowResponse;
 import com.marketingsales.backend.dto.response.RetailerRowResponse;
@@ -101,6 +105,8 @@ public class CustomerNetworkServiceImpl implements CustomerNetworkService {
                 .code(code)
                 .name(request.getName().trim())
                 .address(trimToNull(request.getAddress()))
+                .latitude(normalizeLatitude(request.getLatitude()))
+                .longitude(normalizeLongitude(request.getLongitude()))
                 .contactPerson(request.getContactPerson().trim())
                 .mobile(request.getMobile().trim())
                 .zone(request.getZone().trim())
@@ -130,6 +136,8 @@ public class CustomerNetworkServiceImpl implements CustomerNetworkService {
         distributor.setCode(code);
         distributor.setName(request.getName().trim());
         distributor.setAddress(trimToNull(request.getAddress()));
+        distributor.setLatitude(normalizeLatitude(request.getLatitude()));
+        distributor.setLongitude(normalizeLongitude(request.getLongitude()));
         distributor.setContactPerson(request.getContactPerson().trim());
         distributor.setMobile(request.getMobile().trim());
         distributor.setZone(request.getZone().trim());
@@ -192,7 +200,10 @@ public class CustomerNetworkServiceImpl implements CustomerNetworkService {
                 .code(code)
                 .name(request.getName().trim())
                 .contactPerson(request.getContactPerson().trim())
+                .address(trimToNull(request.getAddress()))
                 .mobile(request.getMobile().trim())
+                .latitude(normalizeLatitude(request.getLatitude()))
+                .longitude(normalizeLongitude(request.getLongitude()))
                 .status(request.getStatus())
                 .outstandingAmount(normalizeOutstanding(request.getOutstandingAmount()))
                 .lastOrderAt(request.getLastOrderAt())
@@ -218,7 +229,10 @@ public class CustomerNetworkServiceImpl implements CustomerNetworkService {
         counter.setCode(code);
         counter.setName(request.getName().trim());
         counter.setContactPerson(request.getContactPerson().trim());
+        counter.setAddress(trimToNull(request.getAddress()));
         counter.setMobile(request.getMobile().trim());
+        counter.setLatitude(normalizeLatitude(request.getLatitude()));
+        counter.setLongitude(normalizeLongitude(request.getLongitude()));
         counter.setStatus(request.getStatus());
         counter.setOutstandingAmount(normalizeOutstanding(request.getOutstandingAmount()));
         counter.setLastOrderAt(request.getLastOrderAt());
@@ -265,7 +279,10 @@ public class CustomerNetworkServiceImpl implements CustomerNetworkService {
                 .code(code)
                 .name(request.getName().trim())
                 .contactPerson(request.getContactPerson().trim())
+                .address(trimToNull(request.getAddress()))
                 .mobile(request.getMobile().trim())
+                .latitude(normalizeLatitude(request.getLatitude()))
+                .longitude(normalizeLongitude(request.getLongitude()))
                 .zone(request.getZone().trim())
                 .route(request.getRoute().trim())
                 .assignedStaffId(assignedStaff.getId())
@@ -294,7 +311,10 @@ public class CustomerNetworkServiceImpl implements CustomerNetworkService {
         retailer.setCode(code);
         retailer.setName(request.getName().trim());
         retailer.setContactPerson(request.getContactPerson().trim());
+        retailer.setAddress(trimToNull(request.getAddress()));
         retailer.setMobile(request.getMobile().trim());
+        retailer.setLatitude(normalizeLatitude(request.getLatitude()));
+        retailer.setLongitude(normalizeLongitude(request.getLongitude()));
         retailer.setZone(request.getZone().trim());
         retailer.setRoute(request.getRoute().trim());
         retailer.setAssignedStaffId(assignedStaff.getId());
@@ -323,6 +343,47 @@ public class CustomerNetworkServiceImpl implements CustomerNetworkService {
         retailer.setStatus(active ? CustomerStatus.ACTIVE : CustomerStatus.INACTIVE);
         retailer.setDirectUnderGen1(true);
         return RetailerRowResponse.from(retailerRepository.saveAndFlush(retailer));
+    }
+
+    @Override
+    @Transactional
+    public BulkCounterCoordinateUpdateResponse bulkUpdateCoordinates(BulkCounterCoordinateUpdateRequest request) {
+        int updated = 0;
+        for (BulkCounterCoordinateItemRequest item : request.getItems()) {
+            if (item.getCounterType() == RouteCounterType.DISTRIBUTOR) {
+                Distributor distributor = distributorRepository.findById(item.getCounterId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Distributor not found"));
+                distributor.setAddress(trimToNull(item.getAddress()));
+                distributor.setLatitude(normalizeLatitude(item.getLatitude()));
+                distributor.setLongitude(normalizeLongitude(item.getLongitude()));
+                distributorRepository.save(distributor);
+                updated++;
+                continue;
+            }
+
+            if (item.getCounterType() == RouteCounterType.CUSTOMER) {
+                CustomerCounter counter = customerCounterRepository.findById(item.getCounterId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Customer counter not found"));
+                counter.setAddress(trimToNull(item.getAddress()));
+                counter.setLatitude(normalizeLatitude(item.getLatitude()));
+                counter.setLongitude(normalizeLongitude(item.getLongitude()));
+                customerCounterRepository.save(counter);
+                updated++;
+                continue;
+            }
+
+            Retailer retailer = retailerRepository.findById(item.getCounterId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Retailer not found"));
+            retailer.setAddress(trimToNull(item.getAddress()));
+            retailer.setLatitude(normalizeLatitude(item.getLatitude()));
+            retailer.setLongitude(normalizeLongitude(item.getLongitude()));
+            retailerRepository.save(retailer);
+            updated++;
+        }
+
+        return BulkCounterCoordinateUpdateResponse.builder()
+                .updatedCount(updated)
+                .build();
     }
 
     private Distributor getDistributor(UUID id) {
@@ -363,5 +424,25 @@ public class CustomerNetworkServiceImpl implements CustomerNetworkService {
 
     private String trimToNull(String value) {
         return StringUtils.hasText(value) ? value.trim() : null;
+    }
+
+    private Double normalizeLatitude(Double value) {
+        if (value == null) {
+            return null;
+        }
+        if (value < -90.0 || value > 90.0) {
+            throw new BadRequestException("Latitude must be between -90 and 90");
+        }
+        return value;
+    }
+
+    private Double normalizeLongitude(Double value) {
+        if (value == null) {
+            return null;
+        }
+        if (value < -180.0 || value > 180.0) {
+            throw new BadRequestException("Longitude must be between -180 and 180");
+        }
+        return value;
     }
 }

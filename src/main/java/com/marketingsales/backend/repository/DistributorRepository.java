@@ -32,4 +32,24 @@ public interface DistributorRepository extends JpaRepository<Distributor, UUID> 
     );
 
     Optional<Distributor> findById(UUID id);
+
+    List<Distributor> findAllByMasterRouteIdAndStatusOrderByNameAsc(UUID masterRouteId, CustomerStatus status);
+
+    List<Distributor> findAllByAssignedStaffIdAndStatusOrderByNameAsc(UUID assignedStaffId, CustomerStatus status);
+
+    @Query("""
+            SELECT d FROM Distributor d
+            WHERE d.status = :status
+              AND (:searchPattern = ''
+                    OR LOWER(d.name) LIKE :searchPattern
+                    OR LOWER(d.code) LIKE :searchPattern
+                    OR LOWER(d.mobile) LIKE :searchPattern)
+            ORDER BY d.name ASC
+            """)
+    List<Distributor> searchActiveDistributors(
+            @Param("status") CustomerStatus status,
+            @Param("searchPattern") String searchPattern
+    );
+
+    boolean existsByAssignedStaffId(UUID assignedStaffId);
 }
