@@ -72,6 +72,9 @@ public class CustomerCounter {
     @Column
     private Double longitude;
 
+    @Column(name = "google_place_id", length = 255)
+    private String googlePlaceId;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "master_route_id", insertable = false, updatable = false)
     private Route masterRoute;

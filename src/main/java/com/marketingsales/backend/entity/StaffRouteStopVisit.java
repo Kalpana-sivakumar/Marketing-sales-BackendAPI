@@ -73,6 +73,9 @@ public class StaffRouteStopVisit {
     @Column(name = "check_in_location_name", length = 255)
     private String checkInLocationName;
 
+    @Column(name = "check_in_google_place_id", length = 255)
+    private String checkInGooglePlaceId;
+
     @Column(name = "check_out_latitude")
     private Double checkOutLatitude;
 
@@ -81,6 +84,9 @@ public class StaffRouteStopVisit {
 
     @Column(name = "check_out_location_name", length = 255)
     private String checkOutLocationName;
+
+    @Column(name = "check_out_google_place_id", length = 255)
+    private String checkOutGooglePlaceId;
 
     @Column(name = "check_in_distance_meters")
     private Double checkInDistanceMeters;

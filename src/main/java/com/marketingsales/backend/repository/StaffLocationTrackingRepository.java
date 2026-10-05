@@ -37,6 +37,7 @@ public interface StaffLocationTrackingRepository extends JpaRepository<StaffLoca
                 slt.latitude,
                 slt.longitude,
                 slt.locationName,
+                slt.googlePlaceId,
                 slt.recordedAt,
                 sa.status
             )

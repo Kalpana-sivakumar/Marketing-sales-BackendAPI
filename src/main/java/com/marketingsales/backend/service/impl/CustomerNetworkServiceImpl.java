@@ -107,6 +107,7 @@ public class CustomerNetworkServiceImpl implements CustomerNetworkService {
                 .address(trimToNull(request.getAddress()))
                 .latitude(normalizeLatitude(request.getLatitude()))
                 .longitude(normalizeLongitude(request.getLongitude()))
+                .googlePlaceId(trimToNull(request.getGooglePlaceId()))
                 .contactPerson(request.getContactPerson().trim())
                 .mobile(request.getMobile().trim())
                 .zone(request.getZone().trim())
@@ -138,6 +139,7 @@ public class CustomerNetworkServiceImpl implements CustomerNetworkService {
         distributor.setAddress(trimToNull(request.getAddress()));
         distributor.setLatitude(normalizeLatitude(request.getLatitude()));
         distributor.setLongitude(normalizeLongitude(request.getLongitude()));
+        distributor.setGooglePlaceId(trimToNull(request.getGooglePlaceId()));
         distributor.setContactPerson(request.getContactPerson().trim());
         distributor.setMobile(request.getMobile().trim());
         distributor.setZone(request.getZone().trim());
@@ -204,6 +206,7 @@ public class CustomerNetworkServiceImpl implements CustomerNetworkService {
                 .mobile(request.getMobile().trim())
                 .latitude(normalizeLatitude(request.getLatitude()))
                 .longitude(normalizeLongitude(request.getLongitude()))
+                .googlePlaceId(trimToNull(request.getGooglePlaceId()))
                 .status(request.getStatus())
                 .outstandingAmount(normalizeOutstanding(request.getOutstandingAmount()))
                 .lastOrderAt(request.getLastOrderAt())
@@ -233,6 +236,7 @@ public class CustomerNetworkServiceImpl implements CustomerNetworkService {
         counter.setMobile(request.getMobile().trim());
         counter.setLatitude(normalizeLatitude(request.getLatitude()));
         counter.setLongitude(normalizeLongitude(request.getLongitude()));
+        counter.setGooglePlaceId(trimToNull(request.getGooglePlaceId()));
         counter.setStatus(request.getStatus());
         counter.setOutstandingAmount(normalizeOutstanding(request.getOutstandingAmount()));
         counter.setLastOrderAt(request.getLastOrderAt());
@@ -283,6 +287,7 @@ public class CustomerNetworkServiceImpl implements CustomerNetworkService {
                 .mobile(request.getMobile().trim())
                 .latitude(normalizeLatitude(request.getLatitude()))
                 .longitude(normalizeLongitude(request.getLongitude()))
+                .googlePlaceId(trimToNull(request.getGooglePlaceId()))
                 .zone(request.getZone().trim())
                 .route(request.getRoute().trim())
                 .assignedStaffId(assignedStaff.getId())
@@ -315,6 +320,7 @@ public class CustomerNetworkServiceImpl implements CustomerNetworkService {
         retailer.setMobile(request.getMobile().trim());
         retailer.setLatitude(normalizeLatitude(request.getLatitude()));
         retailer.setLongitude(normalizeLongitude(request.getLongitude()));
+        retailer.setGooglePlaceId(trimToNull(request.getGooglePlaceId()));
         retailer.setZone(request.getZone().trim());
         retailer.setRoute(request.getRoute().trim());
         retailer.setAssignedStaffId(assignedStaff.getId());
@@ -356,6 +362,7 @@ public class CustomerNetworkServiceImpl implements CustomerNetworkService {
                 distributor.setAddress(trimToNull(item.getAddress()));
                 distributor.setLatitude(normalizeLatitude(item.getLatitude()));
                 distributor.setLongitude(normalizeLongitude(item.getLongitude()));
+                distributor.setGooglePlaceId(trimToNull(item.getGooglePlaceId()));
                 distributorRepository.save(distributor);
                 updated++;
                 continue;
@@ -367,6 +374,7 @@ public class CustomerNetworkServiceImpl implements CustomerNetworkService {
                 counter.setAddress(trimToNull(item.getAddress()));
                 counter.setLatitude(normalizeLatitude(item.getLatitude()));
                 counter.setLongitude(normalizeLongitude(item.getLongitude()));
+                counter.setGooglePlaceId(trimToNull(item.getGooglePlaceId()));
                 customerCounterRepository.save(counter);
                 updated++;
                 continue;
@@ -377,6 +385,7 @@ public class CustomerNetworkServiceImpl implements CustomerNetworkService {
             retailer.setAddress(trimToNull(item.getAddress()));
             retailer.setLatitude(normalizeLatitude(item.getLatitude()));
             retailer.setLongitude(normalizeLongitude(item.getLongitude()));
+            retailer.setGooglePlaceId(trimToNull(item.getGooglePlaceId()));
             retailerRepository.save(retailer);
             updated++;
         }

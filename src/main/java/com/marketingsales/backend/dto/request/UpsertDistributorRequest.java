@@ -36,6 +36,9 @@ public class UpsertDistributorRequest {
     @DecimalMax(value = "180.0", message = "Longitude must be <= 180")
     private Double longitude;
 
+    @Size(max = 255)
+    private String googlePlaceId;
+
     @NotBlank(message = "Contact person is required")
     @Size(max = 150)
     private String contactPerson;

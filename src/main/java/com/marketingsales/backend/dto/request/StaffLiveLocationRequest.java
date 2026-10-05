@@ -25,4 +25,7 @@ public class StaffLiveLocationRequest {
     @NotBlank(message = "Location name is required")
     @Size(max = 255)
     private String locationName;
+
+    @Size(max = 255)
+    private String googlePlaceId;
 }

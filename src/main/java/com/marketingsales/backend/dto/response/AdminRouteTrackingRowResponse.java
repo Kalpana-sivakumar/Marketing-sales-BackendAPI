@@ -34,9 +34,11 @@ public class AdminRouteTrackingRowResponse {
     private Double checkInLatitude;
     private Double checkInLongitude;
     private String checkInLocationName;
+    private String checkInGooglePlaceId;
     private Double checkOutLatitude;
     private Double checkOutLongitude;
     private String checkOutLocationName;
+    private String checkOutGooglePlaceId;
     private Long visitDurationSeconds;
     private boolean checkInCoordinateMatched;
     private boolean checkOutCoordinateMatched;

@@ -230,6 +230,7 @@ public class StaffRouteServiceImpl implements StaffRouteService {
                 .checkInLatitude(request.getLatitude())
                 .checkInLongitude(request.getLongitude())
                 .checkInLocationName(request.getPlaceName())
+                .checkInGooglePlaceId(request.getGooglePlaceId())
                 .checkInDistanceMeters(distanceMeters)
                 .status(RouteVisitStatus.CHECKED_IN)
                 .build();
@@ -262,6 +263,7 @@ public class StaffRouteServiceImpl implements StaffRouteService {
         visit.setCheckOutLatitude(request.getLatitude());
         visit.setCheckOutLongitude(request.getLongitude());
         visit.setCheckOutLocationName(request.getPlaceName());
+        visit.setCheckOutGooglePlaceId(request.getGooglePlaceId());
         visit.setStatus(RouteVisitStatus.DONE);
 
         StaffRouteStopVisit saved = staffRouteStopVisitRepository.save(visit);
@@ -406,9 +408,11 @@ public class StaffRouteServiceImpl implements StaffRouteService {
                     .checkInLatitude(visit != null ? visit.getCheckInLatitude() : null)
                     .checkInLongitude(visit != null ? visit.getCheckInLongitude() : null)
                     .checkInLocationName(visit != null ? visit.getCheckInLocationName() : null)
+                    .checkInGooglePlaceId(visit != null ? visit.getCheckInGooglePlaceId() : null)
                     .checkOutLatitude(visit != null ? visit.getCheckOutLatitude() : null)
                     .checkOutLongitude(visit != null ? visit.getCheckOutLongitude() : null)
                     .checkOutLocationName(visit != null ? visit.getCheckOutLocationName() : null)
+                    .checkOutGooglePlaceId(visit != null ? visit.getCheckOutGooglePlaceId() : null)
                     .visitDurationSeconds(durationSeconds)
                     .checkInCoordinateMatched(checkInMatched)
                     .checkOutCoordinateMatched(checkOutMatched)
@@ -569,9 +573,11 @@ public class StaffRouteServiceImpl implements StaffRouteService {
                 .checkInLatitude(visit.getCheckInLatitude())
                 .checkInLongitude(visit.getCheckInLongitude())
                 .checkInLocationName(visit.getCheckInLocationName())
+                .checkInGooglePlaceId(visit.getCheckInGooglePlaceId())
                 .checkOutLatitude(visit.getCheckOutLatitude())
                 .checkOutLongitude(visit.getCheckOutLongitude())
                 .checkOutLocationName(visit.getCheckOutLocationName())
+                .checkOutGooglePlaceId(visit.getCheckOutGooglePlaceId())
                 .visitDurationSeconds(durationSeconds)
                 .checkInDistanceMeters(visit.getCheckInDistanceMeters())
                 .checkOutDistanceMeters(checkOutDistanceMeters)
