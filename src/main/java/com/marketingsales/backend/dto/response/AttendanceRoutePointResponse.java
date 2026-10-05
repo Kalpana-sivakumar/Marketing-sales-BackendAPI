@@ -15,5 +15,6 @@ public class AttendanceRoutePointResponse {
     private Double latitude;
     private Double longitude;
     private String placeName;
+    private String googlePlaceId;
     private Instant recordedAt;
 }

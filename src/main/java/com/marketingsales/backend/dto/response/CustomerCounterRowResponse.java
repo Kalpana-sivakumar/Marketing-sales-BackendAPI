@@ -23,6 +23,7 @@ public class CustomerCounterRowResponse {
     private String mobile;
     private Double latitude;
     private Double longitude;
+    private String googlePlaceId;
     private String zone;
     private String route;
     private UUID assignedStaffId;
@@ -43,6 +44,7 @@ public class CustomerCounterRowResponse {
                 .mobile(counter.getMobile())
                 .latitude(counter.getLatitude())
                 .longitude(counter.getLongitude())
+                .googlePlaceId(counter.getGooglePlaceId())
                 .zone(counter.getDistributor().getZone())
                 .route(counter.getDistributor().getRoute())
                 .assignedStaffId(counter.getDistributor().getAssignedStaffId())

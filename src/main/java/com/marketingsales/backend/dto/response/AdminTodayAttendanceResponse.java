@@ -17,6 +17,7 @@ public class AdminTodayAttendanceResponse {
     private Instant checkInTime;
     private Instant checkOutTime;
     private String currentLocationName;
+    private String currentGooglePlaceId;
     private Double currentLatitude;
     private Double currentLongitude;
     private Instant lastUpdated;

@@ -16,6 +16,7 @@ public class AdminLiveStaffLocationResponse {
     private Double latitude;
     private Double longitude;
     private String locationName;
+    private String googlePlaceId;
     private Instant lastUpdated;
     private AttendanceStatus attendanceStatus;
 }

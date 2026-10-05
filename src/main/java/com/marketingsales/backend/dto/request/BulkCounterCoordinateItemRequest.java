@@ -23,6 +23,9 @@ public class BulkCounterCoordinateItemRequest {
     @Size(max = 500)
     private String address;
 
+    @Size(max = 255)
+    private String googlePlaceId;
+
     @NotNull(message = "latitude is required")
     @DecimalMin(value = "-90.0", message = "Latitude must be >= -90")
     @DecimalMax(value = "90.0", message = "Latitude must be <= 90")

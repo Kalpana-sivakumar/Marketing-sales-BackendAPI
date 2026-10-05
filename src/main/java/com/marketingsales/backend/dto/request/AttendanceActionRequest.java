@@ -27,4 +27,7 @@ public class AttendanceActionRequest {
     @NotBlank(message = "Place name is required")
     @Size(max = 255)
     private String placeName;
+
+    @Size(max = 255)
+    private String googlePlaceId;
 }

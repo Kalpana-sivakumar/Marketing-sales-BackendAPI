@@ -1,26 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: com.marketingsales.backend.controller.StaffRouteControllerIntegrationTest
 -------------------------------------------------------------------------------
-Tests run: 2, Failures: 2, Errors: 0, Skipped: 0, Time elapsed: 0.682 s <<< FAILURE! -- in com.marketingsales.backend.controller.StaffRouteControllerIntegrationTest
-com.marketingsales.backend.controller.StaffRouteControllerIntegrationTest.getMyRouteReturnsEmptyWhenNoPublishedPlan -- Time elapsed: 0.013 s <<< FAILURE!
-java.lang.AssertionError: Status expected:<200> but was:<500>
-	at org.springframework.test.util.AssertionErrors.fail(AssertionErrors.java:59)
-	at org.springframework.test.util.AssertionErrors.assertEquals(AssertionErrors.java:122)
-	at org.springframework.test.web.servlet.result.StatusResultMatchers.lambda$matcher$9(StatusResultMatchers.java:637)
-	at org.springframework.test.web.servlet.MockMvc$1.andExpect(MockMvc.java:214)
-	at com.marketingsales.backend.controller.StaffRouteControllerIntegrationTest.getMyRouteReturnsEmptyWhenNoPublishedPlan(StaffRouteControllerIntegrationTest.java:42)
-	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
-	at java.base/java.util.ArrayList.forEach(ArrayList.java:1612)
-	at java.base/java.util.ArrayList.forEach(ArrayList.java:1612)
-
-com.marketingsales.backend.controller.StaffRouteControllerIntegrationTest.getMyRouteReturnsPublishedRoute -- Time elapsed: 0.007 s <<< FAILURE!
-java.lang.AssertionError: Status expected:<200> but was:<500>
-	at org.springframework.test.util.AssertionErrors.fail(AssertionErrors.java:59)
-	at org.springframework.test.util.AssertionErrors.assertEquals(AssertionErrors.java:122)
-	at org.springframework.test.web.servlet.result.StatusResultMatchers.lambda$matcher$9(StatusResultMatchers.java:637)
-	at org.springframework.test.web.servlet.MockMvc$1.andExpect(MockMvc.java:214)
-	at com.marketingsales.backend.controller.StaffRouteControllerIntegrationTest.getMyRouteReturnsPublishedRoute(StaffRouteControllerIntegrationTest.java:61)
-	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
-	at java.base/java.util.ArrayList.forEach(ArrayList.java:1612)
-	at java.base/java.util.ArrayList.forEach(ArrayList.java:1612)
-
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.649 s -- in com.marketingsales.backend.controller.StaffRouteControllerIntegrationTest

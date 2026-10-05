@@ -26,6 +26,9 @@ public class AttendanceRoutePointRequest {
     @Size(max = 255)
     private String placeName;
 
+    @Size(max = 255)
+    private String googlePlaceId;
+
     // If omitted by client, server records the ingestion timestamp.
     private Instant recordedAt;
 }

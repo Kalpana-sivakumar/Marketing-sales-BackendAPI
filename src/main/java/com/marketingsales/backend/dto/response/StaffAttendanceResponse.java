@@ -16,6 +16,8 @@ public class StaffAttendanceResponse {
     private String contactNumber;
     private Instant checkInDateTime;
     private String checkInPlace;
+    private String checkInGooglePlaceId;
     private Instant checkOutDateTime;
     private String checkOutPlace;
+    private String checkOutGooglePlaceId;
 }

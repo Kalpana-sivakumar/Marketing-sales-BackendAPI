@@ -59,6 +59,7 @@ public class StaffAttendanceServiceImpl implements StaffAttendanceService {
                 .checkInLatitude(request.getLatitude())
                 .checkInLongitude(request.getLongitude())
                 .checkInLocationName(request.getPlaceName())
+                .checkInGooglePlaceId(request.getGooglePlaceId())
                 .status(AttendanceStatus.CHECKED_IN)
                 .build();
 
@@ -70,6 +71,7 @@ public class StaffAttendanceServiceImpl implements StaffAttendanceService {
                 .latitude(request.getLatitude())
                 .longitude(request.getLongitude())
                 .locationName(request.getPlaceName())
+                .googlePlaceId(request.getGooglePlaceId())
                 .recordedAt(now)
                 .build();
         staffLocationTrackingRepository.save(initialLocation);
@@ -93,6 +95,7 @@ public class StaffAttendanceServiceImpl implements StaffAttendanceService {
         activeAttendance.setCheckOutLatitude(request.getLatitude());
         activeAttendance.setCheckOutLongitude(request.getLongitude());
         activeAttendance.setCheckOutLocationName(request.getPlaceName());
+        activeAttendance.setCheckOutGooglePlaceId(request.getGooglePlaceId());
         activeAttendance.setStatus(AttendanceStatus.CHECKED_OUT);
 
         StaffAttendance saved = staffAttendanceRepository.save(activeAttendance);
@@ -137,6 +140,7 @@ public class StaffAttendanceServiceImpl implements StaffAttendanceService {
                 .latitude(request.getLatitude())
                 .longitude(request.getLongitude())
                 .locationName(request.getPlaceName())
+                .googlePlaceId(request.getGooglePlaceId())
                 .recordedAt(request.getRecordedAt() != null ? request.getRecordedAt() : Instant.now())
                 .build();
 
@@ -175,6 +179,7 @@ public class StaffAttendanceServiceImpl implements StaffAttendanceService {
                 .latitude(request.getLatitude())
                 .longitude(request.getLongitude())
                 .locationName(request.getLocationName())
+                .googlePlaceId(request.getGooglePlaceId())
                 .recordedAt(Instant.now())
                 .build();
 
@@ -186,6 +191,7 @@ public class StaffAttendanceServiceImpl implements StaffAttendanceService {
                 .latitude(saved.getLatitude())
                 .longitude(saved.getLongitude())
                 .locationName(saved.getLocationName())
+                .googlePlaceId(saved.getGooglePlaceId())
                 .recordedAt(saved.getRecordedAt())
                 .build();
     }
@@ -235,6 +241,7 @@ public class StaffAttendanceServiceImpl implements StaffAttendanceService {
                     tracking != null ? tracking.getLatitude() : attendance.getCheckInLatitude(),
                     tracking != null ? tracking.getLongitude() : attendance.getCheckInLongitude(),
                     tracking != null ? tracking.getLocationName() : attendance.getCheckInLocationName(),
+                    tracking != null ? tracking.getGooglePlaceId() : attendance.getCheckInGooglePlaceId(),
                     tracking != null ? tracking.getRecordedAt() : attendance.getUpdatedAt(),
                     AttendanceStatus.CHECKED_IN
             );
@@ -256,8 +263,10 @@ public class StaffAttendanceServiceImpl implements StaffAttendanceService {
                 .contactNumber(attendance.getStaff().getPhone())
                 .checkInDateTime(attendance.getCheckInTime())
                 .checkInPlace(attendance.getCheckInLocationName())
+                .checkInGooglePlaceId(attendance.getCheckInGooglePlaceId())
                 .checkOutDateTime(attendance.getCheckOutTime())
                 .checkOutPlace(attendance.getCheckOutLocationName())
+                .checkOutGooglePlaceId(attendance.getCheckOutGooglePlaceId())
                 .build();
     }
 
@@ -268,6 +277,7 @@ public class StaffAttendanceServiceImpl implements StaffAttendanceService {
                 .latitude(routePoint.getLatitude())
                 .longitude(routePoint.getLongitude())
                 .placeName(routePoint.getLocationName())
+                .googlePlaceId(routePoint.getGooglePlaceId())
                 .recordedAt(routePoint.getRecordedAt())
                 .build();
     }
@@ -278,6 +288,7 @@ public class StaffAttendanceServiceImpl implements StaffAttendanceService {
                 : Optional.empty();
 
         String currentLocationName;
+        String currentGooglePlaceId;
         Double currentLatitude;
         Double currentLongitude;
         Instant lastUpdated;
@@ -285,16 +296,19 @@ public class StaffAttendanceServiceImpl implements StaffAttendanceService {
         if (latestTracking.isPresent()) {
             StaffLocationTracking tracking = latestTracking.get();
             currentLocationName = tracking.getLocationName();
+            currentGooglePlaceId = tracking.getGooglePlaceId();
             currentLatitude = tracking.getLatitude();
             currentLongitude = tracking.getLongitude();
             lastUpdated = tracking.getRecordedAt();
         } else if (attendance.getStatus() == AttendanceStatus.CHECKED_OUT) {
             currentLocationName = attendance.getCheckOutLocationName();
+            currentGooglePlaceId = attendance.getCheckOutGooglePlaceId();
             currentLatitude = attendance.getCheckOutLatitude();
             currentLongitude = attendance.getCheckOutLongitude();
             lastUpdated = attendance.getUpdatedAt();
         } else {
             currentLocationName = attendance.getCheckInLocationName();
+            currentGooglePlaceId = attendance.getCheckInGooglePlaceId();
             currentLatitude = attendance.getCheckInLatitude();
             currentLongitude = attendance.getCheckInLongitude();
             lastUpdated = attendance.getUpdatedAt();
@@ -307,6 +321,7 @@ public class StaffAttendanceServiceImpl implements StaffAttendanceService {
                 .checkInTime(attendance.getCheckInTime())
                 .checkOutTime(attendance.getCheckOutTime())
                 .currentLocationName(currentLocationName)
+                .currentGooglePlaceId(currentGooglePlaceId)
                 .currentLatitude(currentLatitude)
                 .currentLongitude(currentLongitude)
                 .lastUpdated(lastUpdated)

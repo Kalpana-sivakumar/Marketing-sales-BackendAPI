@@ -47,6 +47,9 @@ public class UpsertCustomerCounterRequest {
     @DecimalMax(value = "180.0", message = "Longitude must be <= 180")
     private Double longitude;
 
+    @Size(max = 255)
+    private String googlePlaceId;
+
     @NotNull(message = "Status is required")
     private CustomerStatus status;
 

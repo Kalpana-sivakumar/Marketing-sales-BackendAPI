@@ -22,6 +22,7 @@ public class RetailerRowResponse {
     private String mobile;
     private Double latitude;
     private Double longitude;
+    private String googlePlaceId;
     private String zone;
     private String route;
     private UUID assignedStaffId;
@@ -41,6 +42,7 @@ public class RetailerRowResponse {
                 .mobile(retailer.getMobile())
                 .latitude(retailer.getLatitude())
                 .longitude(retailer.getLongitude())
+                .googlePlaceId(retailer.getGooglePlaceId())
                 .zone(retailer.getZone())
                 .route(retailer.getRoute())
                 .assignedStaffId(retailer.getAssignedStaffId())

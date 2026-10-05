@@ -55,6 +55,9 @@ public class StaffLocationTracking {
     @Column(name = "location_name", length = 255)
     private String locationName;
 
+    @Column(name = "google_place_id", length = 255)
+    private String googlePlaceId;
+
     @Column(name = "recorded_at", nullable = false)
     private Instant recordedAt;
 }

@@ -44,6 +44,9 @@ public class UpsertRetailerRequest {
     @DecimalMax(value = "180.0", message = "Longitude must be <= 180")
     private Double longitude;
 
+    @Size(max = 255)
+    private String googlePlaceId;
+
     @NotBlank(message = "Zone is required")
     @Size(max = 150)
     private String zone;
