@@ -1,8 +1,14 @@
 package com.marketingsales.backend.repository;
 
 import com.marketingsales.backend.entity.User;
+import com.marketingsales.backend.constant.Role;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -11,4 +17,25 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     Optional<User> findByEmailIgnoreCase(String email);
 
     boolean existsByEmailIgnoreCase(String email);
+
+    boolean existsByEmailIgnoreCaseAndIdNot(String email, UUID id);
+
+    @Query("""
+            SELECT u FROM User u
+            WHERE (:searchPattern = ''
+                   OR LOWER(u.fullName) LIKE :searchPattern
+                   OR LOWER(u.email) LIKE :searchPattern)
+              AND (:role IS NULL OR u.role = :role)
+              AND (:region IS NULL OR LOWER(u.region) = :region)
+              AND (:enabled IS NULL OR u.enabled = :enabled)
+            """)
+    Page<User> searchUsers(
+            @Param("searchPattern") String searchPattern,
+            @Param("role") Role role,
+            @Param("region") String region,
+            @Param("enabled") Boolean enabled,
+            Pageable pageable
+    );
+
+    List<User> findAllByRoleAndEnabledTrueOrderByFullNameAsc(Role role);
 }

@@ -73,21 +73,115 @@ see `V2__seed_dev_admin_user.sql`: `admin@marketingsales.dev` / `Admin@12345`, *
 - Swagger UI: `http://localhost:8080/swagger-ui.html`
 - Health check: `GET /api/health`
 
-## Auth endpoints (public)
+## Auth endpoints
 
 | Method | Endpoint                    | Description                    |
 |--------|-------------------------------|---------------------------------|
-| POST   | `/api/auth/register`          | Create a new user               |
 | POST   | `/api/auth/login`              | Authenticate, get access+refresh tokens |
 | POST   | `/api/auth/refresh-token`      | Exchange a refresh token for a new access token |
 
 Everything else requires `Authorization: Bearer <accessToken>`.
+
+## User management endpoints (admin only)
+
+All user-management routes require an `ADMIN` access token. Passwords supplied to user-create
+or user-update requests are BCrypt-hashed before persistence and are never returned by the API.
+
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/api/users` | Create a user |
+| GET | `/api/users?search=&role=&region=&enabled=&page=&size=` | List users; search by name/email and filter by role, region, or active status |
+| GET | `/api/users/{id}` | Get a user |
+| PUT | `/api/users/{id}` | Edit profile details, password, region, or role |
+| PATCH | `/api/users/{id}/status` | Activate/deactivate with `{"enabled": true}` or `{"enabled": false}` |
+
+`POST /api/auth/register` remains available only to authenticated admins for backwards
+compatibility and also requires `region`.
+
+## Product management endpoints (admin only)
+
+SKU is unique and immutable after creation (edit requests do not accept SKU).
+
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/api/products` | Create product |
+| GET | `/api/products?search=&category=&uom=&active=&page=&size=` | List products, search by SKU/name, filter by category/UOM/status |
+| GET | `/api/products/{id}` | View product details |
+| PUT | `/api/products/{id}` | Edit product details (except SKU) |
+| PATCH | `/api/products/{id}/status` | Activate/deactivate with `{"active": true}` or `{"active": false}` |
+
+Example create payload:
+```json
+{
+  "sku": "GEN-CL-500",
+  "productName": "Gen1 Chain Lube",
+  "category": "Chain Care",
+  "packSize": 500,
+  "uom": "ML",
+  "basePrice": 650,
+  "mrp": 750,
+  "status": "ACTIVE"
+}
+```
+
+Product details response includes: category, pack size, UOM, base price, MRP, status, createdBy,
+createdAt, updatedBy, and updatedAt.
+
+## Mobile app product APIs (read-only for staff)
+
+Staff users can view products created from the dashboard but cannot edit product data.
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/api/mobile/products?search=&category=&uom=&page=&size=` | Active product list for mobile screens |
+| GET | `/api/mobile/products/dropdown?search=` | Lightweight product dropdown options (`id`, `sku`, `productName`, `displayLabel`, `basePrice`) |
+| GET | `/api/mobile/products/{id}` | Active product detail view |
+| POST | `/api/mobile/products/order-pricing` | Calculate order line totals and grand total from selected products + quantities |
+
+Order pricing request:
+```json
+{
+  "items": [
+    { "productId": 101, "quantity": 2 },
+    { "productId": 102, "quantity": 3 }
+  ]
+}
+```
+
+Order pricing response includes per-line unit price/line total and overall `totalPrice`.
 
 Example login:
 ```bash
 curl -X POST http://localhost:8080/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"email":"admin@marketingsales.dev","password":"Admin@12345"}'
+```
+
+## Staff attendance endpoints
+
+These endpoints support the mobile check-in/check-out actions and the admin/manager dashboard staff attendance page.
+
+| Method | Endpoint                    | Role                         | Description |
+|--------|-----------------------------|------------------------------|-------------|
+| POST   | `/api/attendance/check-in`  | `STAFF`                      | Records check-in date/time and place name |
+| POST   | `/api/attendance/check-out` | `STAFF`                      | Records check-out date/time and place name |
+| GET    | `/api/attendance/staff`     | `STAFF`, `ADMIN`, `MARKETING_MANAGER` | `STAFF` receives only their own history; admins/managers receive full dashboard list |
+| GET    | `/api/attendance/me`        | `STAFF`                      | Returns the active attendance record (`employeeId`, `checkInDateTime`, `checkOutDateTime`) |
+| POST   | `/api/attendance/route-point` | `STAFF`                    | Appends one GPS route point (lat/lng/time/place) to the authenticated user's active session |
+| GET    | `/api/attendance/me/route`  | `STAFF`                      | Returns persisted route points for the authenticated user's active session |
+
+The mobile app resolves the GPS position to a human-readable place name
+(using the device's geocoder) and sends it with the check-in/check-out tap.
+
+For route persistence across app restarts, the mobile app can periodically call
+`POST /api/attendance/route-point` while checked in; the backend stores points
+under the current active attendance session.
+
+Example check-in/check-out payload:
+```json
+{
+  "placeName": "Anna Nagar, Chennai, Tamil Nadu 600040"
+}
 ```
 
 ## Extending this skeleton

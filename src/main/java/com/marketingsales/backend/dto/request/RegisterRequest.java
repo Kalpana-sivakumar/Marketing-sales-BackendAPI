@@ -26,6 +26,10 @@ public class RegisterRequest {
 
     private String phone;
 
+    @NotBlank(message = "Region is required")
+    @Size(max = 150)
+    private String region;
+
     @NotNull(message = "Role is required")
     private Role role;
 }

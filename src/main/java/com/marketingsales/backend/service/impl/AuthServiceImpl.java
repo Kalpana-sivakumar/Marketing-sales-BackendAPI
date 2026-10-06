@@ -20,6 +20,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
+
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
@@ -32,15 +34,17 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public AuthResponse register(RegisterRequest request) {
-        if (userRepository.existsByEmailIgnoreCase(request.getEmail())) {
+        String normalizedEmail = request.getEmail().trim().toLowerCase();
+        if (userRepository.existsByEmailIgnoreCase(normalizedEmail)) {
             throw new DuplicateResourceException("An account with this email already exists");
         }
 
         User user = User.builder()
                 .fullName(request.getFullName())
-                .email(request.getEmail().toLowerCase())
+                .email(normalizedEmail)
                 .password(passwordEncoder.encode(request.getPassword()))
                 .phone(request.getPhone())
+                .region(request.getRegion())
                 .role(request.getRole() == null ? Role.STAFF : request.getRole())
                 .build();
 
@@ -49,14 +53,17 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    @Transactional
     public AuthResponse login(LoginRequest request) {
+        String normalizedEmail = request.getEmail().trim().toLowerCase();
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+                new UsernamePasswordAuthenticationToken(normalizedEmail, request.getPassword())
         );
 
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
         User user = userRepository.findByEmailIgnoreCase(principal.getUsername())
                 .orElseThrow(() -> new InvalidTokenException("User no longer exists"));
+        user.setLastLoginAt(Instant.now());
 
         return buildAuthResponse(user);
     }
@@ -72,6 +79,9 @@ public class AuthServiceImpl implements AuthService {
         String email = jwtUtil.extractEmail(token);
         User user = userRepository.findByEmailIgnoreCase(email)
                 .orElseThrow(() -> new InvalidTokenException("User no longer exists"));
+        if (!user.isEnabled() || !user.isAccountNonLocked()) {
+            throw new InvalidTokenException("User account is inactive");
+        }
 
         return buildAuthResponse(user);
     }
@@ -90,6 +100,8 @@ public class AuthServiceImpl implements AuthService {
                         .fullName(user.getFullName())
                         .email(user.getEmail())
                         .role(user.getRole().name())
+                        .region(user.getRegion())
+                        .lastLoginAt(user.getLastLoginAt())
                         .build())
                 .build();
     }

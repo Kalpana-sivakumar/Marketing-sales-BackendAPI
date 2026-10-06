@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
+
 @Getter
 @Builder
 @NoArgsConstructor
@@ -26,5 +28,7 @@ public class AuthResponse {
         private String fullName;
         private String email;
         private String role;
+        private String region;
+        private Instant lastLoginAt;
     }
 }

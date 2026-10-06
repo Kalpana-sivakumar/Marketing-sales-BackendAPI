@@ -41,6 +41,9 @@ public class User {
     @Column(length = 20)
     private String phone;
 
+    @Column(nullable = false, length = 150)
+    private String region;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
     private Role role;
@@ -52,6 +55,9 @@ public class User {
     @Builder.Default
     @Column(name = "account_non_locked", nullable = false)
     private boolean accountNonLocked = true;
+
+    @Column(name = "last_login_at")
+    private Instant lastLoginAt;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
